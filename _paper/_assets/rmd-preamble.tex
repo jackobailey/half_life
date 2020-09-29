@@ -1,0 +1,68 @@
+% Jack Baiiley's R Markdown Preamble ----------
+
+% Text and Typography ----------
+
+% Specify fonts
+\setsansfont{Cabin}
+\setmainfont{EB Garamond}
+% \setmathfont{Garamond-Math.otf}[StylisticSet={7,9,11}]
+
+\usepackage[onehalfspacing]{setspace} % line leading
+
+% Statistical Rethinking-style labels
+\definecolor{mygray}{gray}{0.5}
+\newcommand{\flab}[1]{\tag*{\textsf{\small{\textcolor{mygray}{#1}}}}}
+
+
+% --- floats -----------------------
+\usepackage{rotating}     % contains {sidewaysfigure} env
+
+% Set a higher threshold for float-only pages
+\renewcommand{\floatpagefraction}{.8}%
+
+
+% --- Styles -----------------------
+
+% Call 'titling' package to adjust titles, etc.
+\usepackage{titling}
+
+% Format title
+\pretitle{\begin{center} \LARGE \sffamily \bfseries}
+\posttitle{\par\end{center}\vskip 12pt}
+
+% Format author field
+\preauthor{\begin{center} \normalsize}
+\postauthor{\par\end{center}}
+
+% Format data field
+\predate{\begin{center} \normalsize}
+\postdate{\par\end{center}}
+
+% Format abstract title
+\usepackage{abstract}
+\renewcommand{\abstractname}{\sffamily \bfseries Abstract}
+\renewcommand{\abstracttextfont}{\noindent \ignorespaces}
+
+% Format caption style
+\usepackage{caption}
+\captionsetup[figure]{name={Figure}}
+\captionsetup{font={sf}}
+
+% Turn off hyphenation of words across multiple lines
+\hyphenpenalty=100000
+
+% Add small fraction
+\usepackage{xfrac}
+
+
+%  --- SECTION STYLES ---
+\usepackage[small, sf, bf]{titlesec}
+
+% Format section styles
+\titleformat*{\section}{\large \sffamily \bfseries}
+\titleformat*{\subsection}{\sffamily \bfseries  \itshape}
+\titleformat*{\subsubsection}{\sffamily \itshape}
+\titleformat*{\paragraph}{\sffamily \bfseries}
+
+% Prevent bookdown trying to make the text fill the whole page
+\raggedbottom
