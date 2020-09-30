@@ -44,6 +44,7 @@ output:
 # Load packages
 
 library(kableExtra)
+library(tidyverse)
 library(jbmisc) # https://github.com/jackobailey/jbmisc
 library(brms)
 library(here)
@@ -229,88 +230,7 @@ logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0i}}
 
 # Results
 
-```{r model-table, caption = "big test", echo = F}
-
-
-# Get each draw from the posterior distribution
-
-draws <- posterior_samples(m1)
-
-
-# Get regression coefficients
-
-draws <-
-  draws %>% 
-  select(
-    `\\textsf{Intercept}` = b_pars_Intercept,
-    `\\textsf{GDP Change (t = 0)}` = b_beta0_Intercept,
-    `\\textsf{Decay Constant}` = b_lambda_Intercept,
-    `\\textsf{Time Tracker}` = b_pars_track,
-    `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_pars_leaderGordonBrown,
-    `\\textsf{David Cameron (vs. Tony Blair)}` = b_pars_leaderDavidCameron,
-    `\\textsf{Gordon Brown $\\times$ Time}` = `b_pars_track:leaderGordonBrown`,
-    `\\textsf{David Cameron $\\times$ Time}` = `b_pars_track:leaderDavidCameron`
-  )
-
-
-# Pivot table to long-format then compute summary statistics
-
-table <- 
-  draws %>% 
-  pivot_longer(cols = everything()) %>% 
-  mutate(
-    name =
-      name %>% 
-      factor(
-        levels =
-          c(
-            "\\textsf{Intercept}",
-            "\\textsf{GDP Change (t = 0)}",
-            "\\textsf{Decay Constant}",
-            "\\textsf{Time Tracker}",
-            "\\textsf{Gordon Brown (vs. Tony Blair)}",
-            "\\textsf{David Cameron (vs. Tony Blair)}",
-            "\\textsf{Gordon Brown $\\times$ Time}",
-            "\\textsf{David Cameron $\\times$ Time}"
-          )
-      )
-  ) %>% 
-  group_by(name) %>% 
-  summarise(
-    `\\multicolumn{1}{r}{\\textsf{Median}}` = format(round(median(value), 2), nsmall = 2),
-    `\\multicolumn{1}{r}{\\textsf{Error}}` = format(round(sd(value), 2), nsmall = 2),
-    `\\multicolumn{1}{r}{\\textsf{2.5\\%}}` = format(round(quantile(value, probs = 0.025), 2), nsmall = 2),
-    `\\multicolumn{1}{r}{\\textsf{97.5\\%}}` = format(round(quantile(value, probs = 0.975), 2), nsmall = 2),
-    .groups = "drop"
-  ) %>% 
-  rename(
-    " " = name
-  )
-
-
-# Create latex table
-
-table <-
-  table %>% 
-  kable(
-    format = "latex",
-    booktabs = TRUE,
-    escape = FALSE,
-    align = c("l ", rep("D{.}{.}{-1} ", 4)),
-    linesep = "",
-    caption = "Posterior parameter estimates from the half-life model predicting incumbent voting intention, measured in log odds. Data here come from the BES Continuous Monitoring Survey, 2004--2014."
-  ) %>% 
-  kable_styling(
-    position = "center"
-  )
-
-
-# Print table
-
-table
-
-
-```
+\input{_assets/table1.tex}
 
 ```{r real-decay-plot, fig.cap = paste("The economic vote diminishes as the time interval between the survey and reference date increases. At a time interval of", round(median(pars$halflife), 2), "years, the economic voting effect decays to half of its initial value. Note that light, medium, and dark areas show 95%, 80%, and 50% credible intervals, respectively."), fig.width = 6, fig.height = 3.7, echo = F}
 real_decay_plot
