@@ -7,6 +7,7 @@ author: |
   | The University of Manchester
 date: |
   | \small This version: `r format(Sys.time(), '%B %d, %Y')`
+  | Click \href{https://www.github.com/jackobailey/econ_half_life}{\textbf{here}} for replication materials.
 abstract: |
   | One long-standing assumption dominates economic voting research: that voters are retrospective and myopic. Recent research attempts to test this assumption and to estimate a time frame for voters' economic perceptions. But the methods that this research uses face serious problems. To overcome this, I specify a new type of model that allows the economic vote to decay as voters' economic time frames increase. Consistent with voter myopia, I find that the economic vote is strongest where this time frame is shortest. After one and a half years, the economic voting effect falls by half. After five years, it becomes practically-equivalent to zero. This suggests two implications. First, that economic conditions at the time of the election matter most when it comes to deciding the incumbent's fate. Second, that governments receive undeserved leeway on economic policies that they implement early in their terms.
   |
@@ -42,6 +43,7 @@ output:
 
 # Load packages
 
+library(kableExtra)
 library(jbmisc) # https://github.com/jackobailey/jbmisc
 library(brms)
 library(here)
@@ -75,12 +77,14 @@ Instead, ad-hoc assumptions fill the void. As a result, the time frames that eco
 
 To address this problem, I specify a new model that estimates both the economic vote and voter myopia at the same time. Data come from two sources. The first is individual-level voting intention data from the British Election Study Continuous Monitoring Survey. The second is aggregate-level economic statistics from the UK's Office for National Statistics. To model voter myopia, I rely on insights from the physical sciences. In particular, I borrow the concept of a "half-life" from biology and nuclear physics. Like a hour, a minute, or a second, a half-life is a unit of time. But unlike these measures it does not reflect a fixed interval. Rather, it reflects the average amount of time that it takes for a quantity to decay to half of its original value. Ordinarily, scientists would use the associated equation to estimate how much time it might take for radioactive decay to deplete the mass of a block of uranium or for the body's various physiological mechanisms to remove a dosage of a drug from a patient's body. That is to say, to estimate the half-life of a substance. Here, I use the equation to estimate the half-life of a parameter instead. Namely, the economic vote itself.
 
-My findings are consistent with voter retrospection and voter myopia: voters respond most strongly to economic change in the recent past. As the time window between the past and the present increases, any economic voting effects being to peter out. After one and half years, they reach their half-life and fall to half of their initial strength. After five years, they become practically equivalent to zero. Consequently, we should not expect voters to judge governments based on the cumulative economic change during their time in office. Rather, we should expect them to judge governments based only on the state of the economy when it comes time to vote.
+My findings are consistent with voter retrospection and voter myopia: voters respond most strongly to economic change in the recent past. As the time window between the past and the present increases, any economic voting effects being to peter out. After one and half years, they reach their half-life and fall to half of their initial strength. After five years, they become practically equivalent to zero. Consequently, we should not expect voters to judge governments based on the cumulative economic change during their time in office [@healy2014a; @hibbs2006]. Rather, we should expect them to judge governments based on the state of the economy when it comes time to vote.
 
 These results suggest two implications. The first is that governments may receive undeserved leeway for any economic downturns that take place when they first come to power. Thus, the electoral consequences of poor economic management are likely to be small so long as it occurs far enough away from the next election. The second is that economic myopia might lead voters to opt not for the party best able to *manage* the economy, but instead the one best able to *manipulate* it. Governments might, therefore, seek to time economic rallies around election events to improve their chances of winning, rather than seek to manage the economy to the benefit of all citizens all of the time. That said, economic downturns could still have long-term consequences were they to condition voters' perceptions of party competence [@fieldhouse2020a].
 
 
 # How Retrospective are Retrospective Voters?
+
+To argue that voters are not myopic would seem a tall-order. After all, how many political scientists could reasonably 
 
 Economic voting research assumes that voters are myopic, 
 
@@ -112,16 +116,17 @@ Yet more problems.
 
 - Recency bias. The rate of change in the economy in the limit (i.e. at the present moment in time) outweighs the change in the economy between now and any moment in the past.
 
+As @stiers2019 argue, "it is cognitively quite demanding for voters to store and recall relevant economic statistics for a full electoral term" [p. XXX]. My point here in stressing memory and recency is to argue that they don't.
+
 # ... And Why Should We Care?
 
 One obvious retort to the points I raise above is "so what?". After all, if voters engage in economic voting, does it really matter what time frame they use? The answer is simple enough: Yes, it does.
 
-Vote for the best manipulator and not the best manager (democracy for realists)
+First, voters' economic time frames have obvious policy implications. Or, as Tufte puts it, a shorter time frame is likely to result in "myopic policies for myopic voters" [-@tufte1978, p.143]. Imagine a scenario in which voters' economic time frames are short and, more importantly, governments are aware of this fact. Here, the incumbent can reasonably expect only to be punished for choices that fall within this short window of time. This, in effect, incentivizes governments to order their policy decisions in a way that takes advantage of voter myopia. They should make any unpopular policy decisions early in their term, safe in the knowledge that voters will forget them. Likewise, they should make more popular policy decisions later in their term so that voters' perceptions of the party at the election are as positive as possible. In the extreme, where governments lack a clear policy agenda, or simply get desperate, profligacy is likely to be the end result. After all, uncosted or unaffordable tax cuts and spending pledges offer struggling governments a last-ditch hope at reelection.
 
-- "Myopic policies for myopic voters"
-- If voters are myopic enough, governments can get away with anything early in their term and need only worry about the consequences as they approach election time.
-- If voters vote based only on very recent economic evaluations, then this incentivises governments to respond to voters' demands only around election time. But we want governments that respond to the people all of the time.
-- 
+Second, if voters have only a short-sighted view of economic change, then they might be prone to voting not for the best economic *manager* but instead for the best economic *manipulator*. Armed with the levers of the state, incumbent parties can and do use the power of the government to shape voters' preferences in their own favour [@dunleavy1981; @tufte1978]. Note that this argument rests on the assumption that governments can can make policy choices that affect the direction of economic change. Some doubt that this is really the case [@dynes2019]. Yet, whether true or not, the view is common in the economic voting literature [for recent reviews, see @stewart2017; @stegmaier2017; @lewis-beck2017]. If we relax this assumption and instead contend that governments exercise little control over the state of the economy, then must accept that luck --- and not competence --- decides elections [@achen2016; @wlezien2015]. Clearly, this is not a satisfactory outcome if we hope for voters to hold democratic governments to account.
+
+Third, voter myopia disrupts the mechanism that retrospective voting theory assumes both to encourage democratic accountability and to improve economic outcomes. As @achen2016 argue, if elections are really referenda on the economy [@fiorina1981], then we should expect economic conditions to improve most where voters reelect the incumbent party. This is because the incumbent has, presumably, demonstrated that it is able to provide better-than-average economic management. What's more, voters should make use of *all* of the information available about the incumbent's ability to manage the economy if they are to make an informed decision [@healy2014a; @hibbs2006]. If the information that they have access to covers only a small sliver of time close to the election, then this is simply not possible. No wonder then that there is little evidence in favour of such a process [@achen2016].
 
 
 # Data
@@ -155,7 +160,7 @@ The right-most panel shows how I intend to put these estimates to use. Each of t
 
 ## Stage 2: Estimating the Exponential Decay Model
 
-The simplest way to explain the model that I use is to start first with a simpler, more familiar, model and then build up each additional element step-by-step. Consider the following model:
+The simplest way to explain the model that I use is to start with a simpler, more familiar, model and then build up each additional element step-by-step. As such, consider the following model:
 
 \begin{align*}
 Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \flab{Likelihood function}\\
@@ -178,13 +183,13 @@ Now, $\alpha_{wave[i]}$ measures the log odds of voting for the incumbent in eac
 
 As the time interval $t$ varies for each respondent, it makes little sense to have $\beta$, the economic voting effect, be fixed to a single value. Instead, we want $\beta$ to vary as a function of $t$. In particular, we expect $\beta$ to decay as $t$ increases, as people are also more likely to forget events that took place further into the past. One useful way of thinking of this problem is in terms of exponential decay. That is, we expect $\beta$ to have some initial value which decays quickly before levelling out as it approaches zero.
 
-Exponential decay is a common phenomenon in the physical sciences, and described using the following equation [@rosch2014]:
+Exponential decay is a common phenomenon in the physical sciences and described using the following equation [@rosch2014]:
 
 \begin{align*}
 N(t) = N_{0}e^{-\lambda t}
 \end{align*} 
 
-Here, $N(t)$ represents the quantity of some substance $N$ that remains at time $t$ after having undergone exponential decay. Where $t = 0$, $N(t) = N(0)$, the substances initial quantity. As time passes, this value decays subject to the "decay constant", $\lambda$. Where $\lambda$ is positive, the substance experiences exponential decay. Where $\lambda$ is negative, the substance instead experiences exponential growth. Once we know the value of $\lambda$, we can use the following simple equation to obtain the substance's half-life (i.e. how long it would take for the substance to decay by half), $t_{1/2}$:
+Here, $N(t)$ represents the quantity of some substance $N$ that remains at time $t$ after having undergone exponential decay. Note that where $t = 0$, $N(t) = N(0)$, the substance's initial quantity. As time passes, this value decays subject to the "decay constant", $\lambda$. Where $\lambda$ is positive, the substance experiences exponential decay. Where $\lambda$ is negative, the substance instead experiences exponential growth. Once we know the value of $\lambda$, we can use the following simple equation to obtain the substance's half-life (i.e. how long it would take for the substance to decay by half), $t_{1/2}$:
 
 \begin{align*}
 t_{1/2} = \frac{log(2)}{\lambda}
@@ -223,6 +228,89 @@ logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0i}}
 \end{align*}
 
 # Results
+
+```{r model-table, caption = "big test", echo = F}
+
+
+# Get each draw from the posterior distribution
+
+draws <- posterior_samples(m1)
+
+
+# Get regression coefficients
+
+draws <-
+  draws %>% 
+  select(
+    `\\textsf{Intercept}` = b_pars_Intercept,
+    `\\textsf{GDP Change (t = 0)}` = b_beta0_Intercept,
+    `\\textsf{Decay Constant}` = b_lambda_Intercept,
+    `\\textsf{Time Tracker}` = b_pars_track,
+    `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_pars_leaderGordonBrown,
+    `\\textsf{David Cameron (vs. Tony Blair)}` = b_pars_leaderDavidCameron,
+    `\\textsf{Gordon Brown $\\times$ Time}` = `b_pars_track:leaderGordonBrown`,
+    `\\textsf{David Cameron $\\times$ Time}` = `b_pars_track:leaderDavidCameron`
+  )
+
+
+# Pivot table to long-format then compute summary statistics
+
+table <- 
+  draws %>% 
+  pivot_longer(cols = everything()) %>% 
+  mutate(
+    name =
+      name %>% 
+      factor(
+        levels =
+          c(
+            "\\textsf{Intercept}",
+            "\\textsf{GDP Change (t = 0)}",
+            "\\textsf{Decay Constant}",
+            "\\textsf{Time Tracker}",
+            "\\textsf{Gordon Brown (vs. Tony Blair)}",
+            "\\textsf{David Cameron (vs. Tony Blair)}",
+            "\\textsf{Gordon Brown $\\times$ Time}",
+            "\\textsf{David Cameron $\\times$ Time}"
+          )
+      )
+  ) %>% 
+  group_by(name) %>% 
+  summarise(
+    `\\multicolumn{1}{r}{\\textsf{Median}}` = format(round(median(value), 2), nsmall = 2),
+    `\\multicolumn{1}{r}{\\textsf{Error}}` = format(round(sd(value), 2), nsmall = 2),
+    `\\multicolumn{1}{r}{\\textsf{2.5\\%}}` = format(round(quantile(value, probs = 0.025), 2), nsmall = 2),
+    `\\multicolumn{1}{r}{\\textsf{97.5\\%}}` = format(round(quantile(value, probs = 0.975), 2), nsmall = 2),
+    .groups = "drop"
+  ) %>% 
+  rename(
+    " " = name
+  )
+
+
+# Create latex table
+
+table <-
+  table %>% 
+  kable(
+    format = "latex",
+    booktabs = TRUE,
+    escape = FALSE,
+    align = c("l ", rep("D{.}{.}{-1} ", 4)),
+    linesep = "",
+    caption = "Posterior parameter estimates from the half-life model predicting incumbent voting intention, measured in log odds. Data here come from the BES Continuous Monitoring Survey, 2004--2014."
+  ) %>% 
+  kable_styling(
+    position = "center"
+  )
+
+
+# Print table
+
+table
+
+
+```
 
 ```{r real-decay-plot, fig.cap = paste("The economic vote diminishes as the time interval between the survey and reference date increases. At a time interval of", round(median(pars$halflife), 2), "years, the economic voting effect decays to half of its initial value. Note that light, medium, and dark areas show 95%, 80%, and 50% credible intervals, respectively."), fig.width = 6, fig.height = 3.7, echo = F}
 real_decay_plot
