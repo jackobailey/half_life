@@ -50,7 +50,9 @@ gdp <- readRDS(here("_output", "pred_gdp.rds"))
 
 # 2. Transform data -------------------------------------------------------
 
-# First, let's select the variables that we need from the BES CMS data.
+# First, let's select the variables that we need from the BES CMS data. We
+# are going to use the weights, the survey ID, the date that each respondent
+# took their survey, and how each respondent said that they would vote.
 
 cms <- 
   cms %>% 
@@ -63,7 +65,8 @@ cms <-
   )
 
 
-# Next, we'll combine the two date variables into a single variable.
+# Next, we'll combine the two date variables into a single variable and
+# remove the originals to keep things neat and tidy.
 
 cms <-
   cms %>% 
@@ -77,13 +80,13 @@ cms <-
   select(-date1, -date2)
 
 
-# We'll convert the voting intention item from specific parties to 
-# "Incumbent" or "Other" based on who was in power at what time. I've
-# kept in those who said "Don't know", etc., as it's possible that some
-# voters who support the incumbent will pick these options when things
-# get bad so that they don't have to challenge their party identification.
-# Likewise, some opposition supporters will pick them when things are good.
-# Keeping them in not only preserves the data, it also takes this into account.
+# We'll convert the voting intention item from specific parties t0  "Incumbent"
+# or "Other" based on who was in power at what time. I've kept in those who
+# said "Don't know", etc., as it's probable that some voters who support the
+# incumbent will pick these options when things get bad so that they don't have
+# to challenge their own party identification. Likewise, some opposition
+# supporters will pick them when things are good. Keeping them in not only
+# preserves statistical power, it also takes this into account.
 
 cms <-
   cms %>% 
@@ -132,13 +135,28 @@ cms <-
   )
 
 
-# We'll also create a new variable "track" that tracks the time that has
+# We'll also create a new variable "office" that counts how long each
+# Prime Minister has been in power.
+
+cms <- 
+  cms %>% 
+  mutate(
+    office =
+      case_when(
+        leader == "Tony Blair" ~ interval("1997-05-02", date)/years(1),
+        leader == "Gordon Brown" ~ interval("2007-06-27", date)/years(1),
+        leader == "David Cameron" ~ interval("2010-05-11", date)/years(1)
+      )
+  )
+
+
+# We'll also create a new variable "year" that tracks the time that has
 # passed since the first date of the survey in years.
 
 cms <- 
   cms %>% 
   mutate(
-    track = interval(min(as_date(cms$date), na.rm = T), as_date(date))/years(1)
+    year = interval(min(as_date(cms$date), na.rm = T), as_date(date))/years(1)
   )
 
 
@@ -251,7 +269,7 @@ m1 <-
     formula = 
       bf(
         inc | weights(w8) ~ pars + betaT*gdp,
-        pars ~ 1 + track*leader + (1 | survey),
+        pars ~ 1 + year + office*leader + (1 | survey),
         nlf(betaT ~ beta0*exp(-lambda*time)),
         beta0 + lambda ~ 1,
         nl = TRUE,
@@ -278,16 +296,11 @@ m1 <-
 
 
 # Now that the model has finished fitting, let's check that there aren't
-# and divergent transitions or other issues that might suggest that the
+# any divergent transitions or other issues that might suggest that the
 # inferences we make from the model are suspect. No errors here, so looks
 # like we're good to go.
 
 check_hmc_diagnostics(m1$fit)
-
-
-# Finally, let's inspect the model fit and the resulting parameter estimates
-
-summary(m1)
 
 
 

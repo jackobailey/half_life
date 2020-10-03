@@ -59,7 +59,8 @@ plot_dta <-
     model = m1,
     newdata = 
       tibble(
-        track = NA,
+        year = NA,
+        office = NA,
         time = seq(0, 5, by = .1),
         gdp = NA,
         leader = NA),

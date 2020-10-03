@@ -1,5 +1,5 @@
 # What's the Half-Life of Economic Growth?
-# Script 6: Real Decay Plot
+# Script 8: Table
 
 # Jack Bailey
 # The University of Manchester
@@ -48,11 +48,12 @@ draws <-
     `\\textsf{Intercept}` = b_pars_Intercept,
     `\\textsf{GDP (t = 0)}` = b_beta0_Intercept,
     `\\textsf{Decay Constant}` = b_lambda_Intercept,
-    `\\textsf{Time Tracker}` = b_pars_track,
+    `\\textsf{Years Passed}` = b_pars_year,
+    `\\textsf{Time in Office}` = b_pars_office,
     `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_pars_leaderGordonBrown,
     `\\textsf{David Cameron (vs. Tony Blair)}` = b_pars_leaderDavidCameron,
-    `\\textsf{Gordon Brown $\\times$ Time}` = `b_pars_track:leaderGordonBrown`,
-    `\\textsf{David Cameron $\\times$ Time}` = `b_pars_track:leaderDavidCameron`
+    `\\textsf{Gordon Brown $\\times$ Time}` = `b_pars_office:leaderGordonBrown`,
+    `\\textsf{David Cameron $\\times$ Time}` = `b_pars_office:leaderDavidCameron`
   )
 
 
@@ -70,7 +71,8 @@ table <-
             "\\textsf{Intercept}",
             "\\textsf{GDP (t = 0)}",
             "\\textsf{Decay Constant}",
-            "\\textsf{Time Tracker}",
+            "\\textsf{Years Passed}",
+            "\\textsf{Time in Office}",
             "\\textsf{Gordon Brown (vs. Tony Blair)}",
             "\\textsf{David Cameron (vs. Tony Blair)}",
             "\\textsf{Gordon Brown $\\times$ Time}",
@@ -101,7 +103,7 @@ table <-
     escape = FALSE,
     align = c("l ", rep("D{.}{.}{-1} ", 4)),
     linesep = "",
-    caption = "Posterior parameter estimates from the half-life model predicting incumbent voting intention, measured in log odds. Data here come from the BES Continuous Monitoring Survey, 2004--2014."
+    caption = "Parameter estimates from the half-life model predicting incumbent voting intention. Note that the model converged with no divergent transitions, no iterations saturated the maximum treedepth, and $\\hat{\\textsf{R}}$ statistics all equalled 1. Data come from the BES Continuous Monitoring Survey, 2004--2014."
   ) %>% 
   kable_styling(
     position = "center"

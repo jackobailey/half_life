@@ -21,6 +21,7 @@
 # Load packages
 
 library(tidyverse)
+library(magrittr)
 library(jbmisc)     # https://github.com/jackobailey/jbmisc
 library(brms)
 library(here)
@@ -29,6 +30,21 @@ library(here)
 # Load model
 
 m1 <- readRDS(here("_output", "m1.rds"))
+
+
+# Estimate median half-life
+
+half_life <-
+  log(2) %>% 
+  divide_by(
+    posterior_samples(
+      m1,
+      pars = "b_lambda"
+    ) %>% 
+      pluck(1)
+  ) %>% 
+  median() %>% 
+  round(2)
 
 
 
@@ -46,9 +62,10 @@ probs <-
     effects = "gdp",
     conditions =
       tibble(
-        time = c(0, 2.5, 5),
-        cond__ = paste("Time Interval (Years) =", c(0, 2.5, 5))
-      )
+        time = c(0, half_life, 5),
+        cond__ = paste("Time Interval (Years) =", c(0, half_life, 5))
+      ),
+    re_formula = NA
   )
 
 
@@ -59,7 +76,7 @@ real_slope_plot <-
   mutate(
     cond__ =
       cond__ %>% 
-      ordered(labels = paste("Time Interval (Years) = ", c(0, 2.5, 5)))
+      ordered(labels = paste("Time Interval (Years) = ", c(0, half_life, 5)))
   ) %>% 
   ggplot(
     aes(
