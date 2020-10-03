@@ -129,7 +129,6 @@ gdp_change <-
     model = gdp_model,
     newdata = tibble(time = seq(0, max(gdp$time), by = 1))
   ) %>% 
-  mutate(change = NA) %>% 
   ungroup()
 
 
