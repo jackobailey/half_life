@@ -103,7 +103,8 @@ table <-
     escape = FALSE,
     align = c("l ", rep("D{.}{.}{-1} ", 4)),
     linesep = "",
-    caption = "Parameter estimates from the half-life model predicting incumbent voting intention. Note that the model converged with no divergent transitions, no iterations saturated the maximum treedepth, and $\\hat{\\textsf{R}}$ statistics all equalled 1. Data come from the BES Continuous Monitoring Survey, 2004--2014."
+    caption = "Parameter estimates from the half-life model predicting incumbent voting intention. Data come from the BES Continuous Monitoring Survey, 2004--2014.",
+    label = "table1"
   ) %>% 
   kable_styling(
     position = "center"
