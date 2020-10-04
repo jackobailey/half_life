@@ -169,6 +169,24 @@ real_decay_plot <-
 
 
 
-# 3. Thanks for replicating! ----------------------------------------------
+# 3. Create PNG version ---------------------------------------------------
+
+# As this plot is clearly the most important in the entire paper, and as
+# this project is hosted on GitHub, it makes sense to render it as an image
+# file so that I can call it remotely from other services and always get the
+# most up-to-date version.
+
+png(
+  filename = here("_output", "real_decay_plot.png"),
+  width = 4,
+  height = 2.5,
+  units = "in",
+  res = 300
+)
+real_decay_plot
+dev.off()
+
+
+# 4. Thanks for replicating! ----------------------------------------------
 
 # Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
