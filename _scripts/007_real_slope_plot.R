@@ -21,6 +21,7 @@
 # Load packages
 
 library(tidyverse)
+library(tidybayes)
 library(magrittr)
 library(jbmisc)     # https://github.com/jackobailey/jbmisc
 library(brms)
@@ -53,54 +54,66 @@ half_life <-
 # We're going to create a triptych plot that shows how the slope parameter
 # in our fitted model changes as a function of time. First, we must compute
 # the predicted probability of voting for the incumbent party at different
-# values of GDP and time. We'll do this by using the conditional_effects()
-# function from the brms package.
+# values of GDP and time.
 
-probs <-
-  conditional_effects(
-    m1,
-    effects = "gdp",
-    conditions =
+probs <- 
+  add_fitted_draws(
+    model = m1,
+    newdata =
       tibble(
-        time = c(0, half_life, 5),
-        cond__ = paste("Time Interval (Years) =", c(0, half_life, 5))
+        gdp = rep(seq(min(m1$data$gdp), max(m1$data$gdp), length.out = 100), 3),
+        time = rep(c(0, half_life, 5), each = length(gdp)/3),
+        year = 0,
+        office = 0,
+        leader = "Tony Blair"
       ),
     re_formula = NA
-  )
+  ) %>% 
+  ungroup()
 
 
 # Next, we'll use the values to create our plot.
 
 real_slope_plot <-
-  probs$gdp %>% 
+  probs %>% 
   mutate(
-    cond__ =
-      cond__ %>% 
+    label = 
+      paste0("Time Interval (Years) = ", time) %>% 
       ordered(labels = paste("Time Interval (Years) = ", c(0, half_life, 5)))
   ) %>% 
   ggplot(
     aes(
       x = gdp,
-      y = estimate__,
-      ymin = estimate__ - 1.96*se__,
-      ymax = estimate__ + 1.96*se__
+      y = .value
     )
   ) +
-  facet_wrap(~cond__, scales = "free_x") +
+  facet_wrap(~label, scales = "free_x") +
   geom_vline(
     xintercept = 0,
     linetype = "dotted",
     colour = bailey_colours("grey6")
   ) +
-  geom_ribbon(alpha = 0.1) +
-  geom_line(lineend = "round") +
+  stat_lineribbon(
+    .width = c(.95, .8, .5),
+    colour = NA,
+    fill = bailey_colours("grey"),
+    show.legend = F,
+    alpha = .1
+  ) +
+  stat_lineribbon(
+    .width = .5,
+    colour = bailey_colours("black"),
+    fill = NA,
+    show.legend = F,
+    size = 0.5
+  ) +
   scale_x_continuous(
     breaks = seq(-5, 15, by = 5),
     labels = c("-5%", "0%", "+5%", "+10%", "+15%")) +
   scale_y_continuous(
-    breaks = seq(0, .5, by = .1),
+    breaks = seq(0, .6, by = .2),
     labels = scales::percent_format(accuracy = 1)) +
-  coord_cartesian(ylim = c(0, .5)) +
+  coord_cartesian(ylim = c(0, .6)) +
   labs(
     x = "GDP Change",
     y = "Prob. Voting for Incumbent"
