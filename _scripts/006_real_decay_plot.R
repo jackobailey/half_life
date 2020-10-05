@@ -176,15 +176,6 @@ real_decay_plot <-
 # file so that I can call it remotely from other services and always get the
 # most up-to-date version.
 
-# First, we'll add a title to the plot
-
-real_decay_plot <-
-  real_decay_plot +
-  labs(title = "Voter Myopia is Real")
-
-
-# Then, we'll render the image
-
 png(
   filename = here("_output", "real_decay_plot.png"),
   width = 4,
