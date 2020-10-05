@@ -187,6 +187,7 @@ real_decay_plot
 dev.off()
 
 
+
 # 4. Thanks for replicating! ----------------------------------------------
 
 # Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
