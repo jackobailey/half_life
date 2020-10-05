@@ -148,7 +148,7 @@ The remaining voter-centric work on voter myopia relies on experimental methods.
 
 Most electorate-centric research follows the precedent set by @hibbs1987 and focusses not only on how myopic voters are but also the functional form that their myopia takes. Hibbs' approach is as follows. First, he assumes that voters' memories decay at a known exponential rate. He then takes past estimates of year-on-year real income growth, weights them according to his exponential function, and  uses them to predict incumbent vote share across a range of US presidential elections. This, he claims, shows that voters are myopic. @achen2016 come to a similar conclusion using both the same approach as Hibbs and an even more limited one, which assumes that voters respond only to economic growth in the two quarters before an election.
 
-@wlezien2015 argues that these approaches are overly-conservative and that the extent to which we consider the electorate to be myopic depends on the functional form that we assume their myopia to take. Rather than use an exponential weighting function like Hibbs, he uses a logistic one instead. Due to its shape, the logistic function is less conservative and allows voters' some time to reflect on the recent past. Wlezien's results indicate that voters are myopic, though less so than often thought: they do not respond to GDP growth at the very start of the incumbent's term, but they do respond to it over at least the past few years.
+@wlezien2015a argues that these approaches are overly-conservative and that the extent to which we consider the electorate to be myopic depends on the functional form that we assume their myopia to take. Rather than use an exponential weighting function like Hibbs, he uses a logistic one instead. Due to its shape, the logistic function is less conservative and allows voters' some time to reflect on the recent past. Wlezien's results indicate that voters are myopic, though less so than often thought: they do not respond to GDP growth at the very start of the incumbent's term, but they do respond to it over at least the past few years.
 
 By and large, this research arrives at a conclusion that satisfies the assumptions that it makes about how voter myopia operates. Though this is perhaps unsurprising, it is a problem. Consider the equation below, which characterises this approach:
 
@@ -175,7 +175,7 @@ One obvious retort to the points I raise above is "so what?". After all, if vote
 
 First, voters' economic time frames have clear policy implications. Or, as Tufte puts it, a shorter time frame would likely result in "myopic policies for myopic voters" [-@tufte1978, p.143]. Imagine a scenario where voters have short economic time frames and, more importantly, their government is aware of this fact. Under such a scenario, the incumbent can reasonably expect only to be punished for choices that fall within this short window of time. In effect, this incentivises governments to make any unpopular policy decisions early in their term, safe in the knowledge that voters will forget them. Likewise, it also incentivises them to make more popular policy decisions later in their term so that voters' perceptions of the party at the election are as positive as possible. In the extreme, where governments lack a clear policy agenda, or simply reach the point of desperation, profligacy is likely to be the end result. After all, uncosted or unaffordable tax cuts and spending pledges offer struggling governments a last-ditch hope at reelection and their consequences can be dealt at the start of the next term, which voters are likely to forget.
 
-Second, myopic voters are prone to voting not for the best economic *manager* but instead for the best economic *manipulator*. Armed with the levers of the state, incumbent parties can and do use their power to shape voters preferences in their own favour [@dunleavy1981; @tufte1978]. Though this view is common in the economic voting literature [see @stegmaier2019; @stewart2017; @stegmaier2017; @lewis-beck2017], some doubt whether governments really have such a high degree of control over the state of the economy [@dynes2019]. Still, if we relax this assumption the results are not much better: we must accept that luck, not competence, decides elections [@achen2016; @wlezien2015]. Clearly, this is not a satisfactory outcome for democratic accountability.
+Second, myopic voters are prone to voting not for the best economic *manager* but instead for the best economic *manipulator*. Armed with the levers of the state, incumbent parties can and do use their power to shape voters preferences in their own favour [@dunleavy1981; @tufte1978]. Though this view is common in the economic voting literature [see @stegmaier2019; @stewart2017; @stegmaier2017; @lewis-beck2017], some doubt whether governments really have such a high degree of control over the state of the economy [@dynes2019]. Still, if we relax this assumption the results are not much better: we must accept that luck, not competence, decides elections [@achen2016; @wlezien2015a]. Clearly, this is not a satisfactory outcome for democratic accountability.
 
 Third, voter myopia disrupts the mechanism that retrospective voting theory assumes encourages accountability and improves economic outcomes. As @achen2016 argue, if elections are "referenda on the incumbent administration's handling of the economy" [@fiorina1981, p.26], then economic conditions should improve where voters reelect the incumbent. This is because the incumbent has, presumably, demonstrated that it provides better-than-average economic management. To make this decision, voters should make use of *all* available information on the incumbent's ability to manage the economy [@healy2014a; @hibbs2006]. If the information that they have access to covers only a small sliver of time close to the election, then this is simply not possible. No wonder then that there is little evidence that economic outcomes do improve where incumbents are reelected [@achen2016].
 
@@ -249,7 +249,7 @@ t_{1/2} = \frac{log(2)}{\lambda}
 Of course, in this case, the quantity of interest is not really a substance. Instead, it is a parameter: the economic voting effect itself. Given this, substituting $N$ for the economic voting effect, $\beta$, allows the model to estimate the economic vote while allowing its effect to vary according to the time interval $t$, consistent with voter myopia:
 
 \begin{align*}
-\beta_{t} = \beta_{0} e^{-\lambda t} \flab{Exponential decay model on $\beta_{t}$}
+\beta_{t} = \beta_{0} e^{-\lambda t}
 \end{align*}
 
 At this point it is worth pausing for a moment and considering how the decay constant and half-life parameters relate to one another in greater detail. Figure \@ref(fig:decay-plot) shows how changes in former affect changes in the latter. Moving from the left-most to the right-most panel, the value that the decay constant takes increases from 0.25, to 0.5, to 0.75. As it does so, two things happen. First, the economic voting effect decays more quickly. Second, the value of the half-life parameter, $t_{1/2}$, decreases to account for the increased rate of decay.
@@ -266,11 +266,11 @@ Substituting this exponential decay model into the retrospective voting model ab
 Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \flab{Likelihood function}\\
 logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0}} - \widehat{GDP_{t}}}{\widehat{GDP_{t}}} \times 100) + \sum_{j = 1}^{6} \delta_{j} x_{ji} \flab{Linear model on $\pi_{i}$}\\
 \beta_{t} &= \beta_{0}e^{-\lambda t} \flab{Exponential decay model on $\beta_{t}$}\\
-\alpha_{\mathrm{wave}} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \flab{Adaptive prior on varying intercepts}\\
+\alpha_{j} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \text{ for } j \text{ in } 1..114 \flab{Adaptive prior on varying intercepts}\\
 \overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \flab{Prior on grand mean of intercepts}\\
 \sigma_{\alpha} &\sim \mathrm{Exponential}(5) \flab{Prior on standard deviation of intercepts}\\
 \beta_{0} &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on $\beta$ where $t$ = 0}\\
-\delta_{j} &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on $\delta$ parameters} \text{ for } j \text{ in } 1..J\\
+\delta_{j} &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on $\delta$ parameters} \text{ for } j \text{ in } 1..6\\
 \lambda &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on the decay constant, $\lambda$}
 \end{align*}
 
@@ -295,36 +295,21 @@ Note that as the economic voting effect diminishes, the certainty about its true
 
 Figure \@ref(fig:real-slope-plot) shows how voter myopia conditions voters' willingness to support the incumbent party at three different time intervals. The left-most panel shows how voters' probability of supportting the incumbent changes where they consider the state of the economy in the immediate present. The effect is reasonable in size, if uncertain: voters appear a few percentage points more likely to support the incumbent where the economy is growing than where it is not. Their level of support then appears to diminish as their retrospective time frames increase in the centre- and right-most panels. Indeed, where voters compare the state of the economy now to the state of the economy five years before, there appears to be no practical effect on their probability of voting for the incumbent party^[It is worth also noting that the time interval that voters use and the level of economic growth will have a strong positive correlation. After all, the economy almost always grows over time. Still, as the coronavirus pandemic demonstrates, it is perfectly possible for a country to experience double-digit negative growth in only a very short amount of time.].
 
-```{r real-slope-plot, fig.cap = paste0("At t = 0, the economic vote shifts the probability of voting for the incumbent by a few percentage points. ", "After ", round(median(half_life_dist), 2), " years, it is only very small. And after 5 years, it is practically-equivalent to zero."), fig.width = 6, fig.height = 2.3, echo = F}
+```{r real-slope-plot, fig.cap = paste0("At t = 0, the economic vote shifts the probability of voting for the incumbent by a few percentage points. ", "After ", round(median(half_life_dist), 2), " years, this effect lessens. And after 5 years, it is practically-equivalent to zero. Again, light, medium, and dark areas reflect 95%, 80%, and 50% credible intervals."), fig.width = 6, fig.height = 2.3, echo = F}
 real_slope_plot
 ```
 
 # Discussion and Conclusion
 
+Voter myopia is real. When it comes to the economy, voters pay most attention to how things are *right now*. Yet they are not quite so short-sighted as some past research might have us believe. Voters do not have economic time frames that cover only the election year [@healy2014a] or even just the past few months [@achen2016]. Rather, economic change over the past few years affects their willingness to support the incumbent party, though with diminishing returns. Indeed, even though the economic vote is strongest in the present, it still takes over a year and half for its effect to diminish to half of its initial value.
 
+In one respect, that voters' economic time frames extend beyond the campaign period alone is reassuring. Put simply, it mean that governments must contend with the consequences of more of their economic policy decisions than we might previously have thought. Some suggest that this might reflect a rational decision on the part of the electorate [@achen2016; @wlezien2015a]: it might make sense to ignore the first view years of economic conditions under a new government as their predecessor's decisions continue to ripple through the system. I am not so sure. Most of the data I use here come from a time when the government had been in power for several years and still shows the same pattern of myopia. Rather, as forgetting is a part of the human condition, that voters remember more than we might have expected is most probably a happy accident.
 
-- First, voters’ economic time frames have clear policy implications
-- Second, myopic voters are prone to voting not for the best economicmanagerbut instead forthe best economicmanipulator
-- Third, voter myopia disrupts the mechanism that retrospective voting theory assumes encouragesaccountability and improves economic outcomes
+In another respect, that voters are myopic at all suggests that the three issues I raise above likely remain a problem. First, the time frames that I identify here are still short enough to make "myopic policies for myopic voters" [@tufte1978, p.143] a real concern. Shorter term lengths (like those in Australia and New Zealand) might, therefore, offer voters a better chance at holding their governments to account. Second, as the present state of the economy appears to have the greatest influence over how people vote, strong economic manipulators might still outperform strong economic managers. That myopia renders voters unable to tell the difference does not bode well for democratic accountability. Third, taken together this might suggest that voters are not equipped with the necessary tools to select governments who will deliver improved economic outcomes.
 
+Though these implications may be worrisome, it is worth noting that the economy might still influence the choices that voters make through alternate routes. As @fieldhouse2020a argue, economic downturns can have long-term consequences beyond their direct effect on jobs and living standards: they can affect how competent voters consider their governing party to be. Arguably, the UK Labour Party is still suffering from this problem more than a decade after the financial crisis first began. Another possibility is that the small economic voting effects that I find here indicate only that voters respond to some other indicator or, instead, to events and topics made salient in the media that they consume [@garz2020; @park2019; @soroka2015].
 
-Though I take a different approach, my results resemble @wlezien2015: voters are myopic, though not so myopic that they focus only on the 
-
-The economic voting effect is small
-
-Voters are myopic, though they are not so myopic that events over the past few years have no effect on how they vote.
-
-Recency is a real concern: current economic conditions matter more. While that raises the problem that voters might vote for the best manipulator and not the best manager, voters' time horizons do look to be long enough that historic performance matters.
-
-For governments: more evidence that they should stack bad economic news at the start of the session.
-
-Another possibility is that some types of economic change linger longer than others. Downturns seem an obvious example. 
-
-That said, economic voting effects here are quite weak. Hard to contrast to other figures as most economic voting research relies on economic perceptions (which suffer all sorts of bias) or, where they do use economic statistics do so at the aggregate level.
-
-Another possibility is that some types of economic change linger longer than others. @fieldhouse2020, for example, argue that British politics felts the effects of the 2008 global financial crisis much longer than
-
-If past events matter less because voters are not attentive to them, then we might expect the half-life of the economic voting effect to also vary according to the attention that voters pay to politics. More attentive voters might also have greater time frames.
+There are many opportunities to extend the present analysis. Though I expect my findings to generalise to other contexts, one obvious extension would be to replicate them in other countries and at other points in time. Given the shear amount of elections data that now exists, one possibility might be to compile data on many elections, whether within a single country or, instead, a comparative setting. Another possible extension would be to engage with the literature on grievance asymmetry in economic voting [@park2019a; @soroka2006; @bloom1975]. Given the serious ramifications that economic downturns can have for voters' material well-being, it seems reasonable to expect their memories of bad times to outlast those of good ones. Likewise, voters' economic time frames probably vary according to their own personal characteristics. Though most voters might not pay attention to politics, some do. As such, a final extension might be to test if more attentive voters are also less myopic. In doing so, we might finally come to understand how voter myopia shapes our democracy and the governments that we elect.
 
 \pagebreak
 
