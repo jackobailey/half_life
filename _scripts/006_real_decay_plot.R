@@ -180,7 +180,7 @@ real_decay_plot <-
 
 real_decay_plot <-
   real_decay_plot +
-  labs(title = "Voter Myopia Increases With Retrospection")
+  labs(title = "Voter Myopia is Real")
 
 
 # Then, we'll render the image
