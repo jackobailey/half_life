@@ -44,7 +44,7 @@ dta <-
   tibble(
     gdp = rep(seq(-5, 5, by = 0.1), 3),
     time = rep(0:2, each = length(gdp)/3),
-    label = rep(paste("Time Interval (Years) =", 0:2), each = length(gdp)/3),
+    label = rep(paste("Economic Time Frame (Years) =", 0:2), each = length(gdp)/3),
     vote = inv_logit(0 + betaT(time = time, beta0 = 0.2, lambda = 1)*gdp)
   )
 

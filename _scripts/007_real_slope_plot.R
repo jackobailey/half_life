@@ -78,8 +78,8 @@ real_slope_plot <-
   probs %>% 
   mutate(
     label = 
-      paste0("Time Interval (Years) = ", time) %>% 
-      ordered(labels = paste("Time Interval (Years) = ", c(0, half_life, 5)))
+      paste0("Economic Time Frame (Years) = ", time) %>% 
+      ordered(labels = paste("Economic Time Frame (Years) = ", c(0, half_life, 5)))
   ) %>% 
   ggplot(
     aes(

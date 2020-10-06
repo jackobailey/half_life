@@ -157,7 +157,7 @@ real_decay_plot <-
   ) +
   labs(
     y = "Economic Voting Effect (Log Odds)",
-    x = "Time Interval (Years)"
+    x = "Economic Time Frame (Years)"
   ) +
   theme_bailey() +
   theme(

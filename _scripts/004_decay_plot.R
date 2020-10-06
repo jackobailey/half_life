@@ -93,7 +93,7 @@ decay_plot <-
   coord_cartesian(ylim = c(0, 1), clip = "off") +
   labs(
     y = "Parameter Value",
-    x = "Time Interval (Years)"
+    x = "Economic Time Frame (Years)"
   ) +
   geom_segment(
     data = labs_h,
