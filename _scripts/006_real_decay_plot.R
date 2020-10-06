@@ -129,7 +129,7 @@ real_decay_plot <-
     colour = NA,
     fill = bailey_colours("grey"),
     show.legend = F,
-    alpha = .1
+    alpha = .15
   ) +
   stat_lineribbon(
     .width = .5,
