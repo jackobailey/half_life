@@ -101,7 +101,7 @@ table <-
     escape = FALSE,
     align = c("l ", rep("D{.}{.}{-1} ", 4)),
     linesep = "",
-    caption = "Parameter estimates from my conventional economic voting model. Here, year-on-year GDP change data come from the ONS' monhtly time series of UK GDP and individual-level voting intention data come from the BES Continuous Monitoring Survey, 2004--2014.",
+    caption = "Parameter estimates from my conventional economic voting model. Here, year-on-year GDP change data come from the ONS' monthly time series of UK GDP and individual-level voting intention data come from the BES Continuous Monitoring Survey, 2004--2014.",
     label = "tablea1"
   ) %>% 
   kable_styling(
