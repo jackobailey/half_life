@@ -131,8 +131,11 @@ table <-
 
 
 # Print table
+# Save table to disk
 
+sink(file = here("_paper", "_assets", "tablea1.tex"))
 cat(table)
+sink()
 
 
 
