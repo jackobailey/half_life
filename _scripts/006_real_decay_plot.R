@@ -144,7 +144,7 @@ real_decay_plot <-
     sec.axis = 
       dup_axis(
         trans = ~.,
-        labels = c("0", "½β", "β", "2β")
+        labels = c("0β", "½β", "1β", "2β")
       )
   ) +
   scale_x_continuous(
