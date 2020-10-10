@@ -2,20 +2,21 @@
 title: |
   | What's the Half-Life of the Economic Vote?
   | (About a Year and a Half)\thanks{This article benefitted from much useful feedback. I owe particular thanks to Matthew Barnfield, Y, and Z for their time and their advice. Thank you also to Richard McElreath who was kind enough to share the code necessary to make the equation labels that I use here.}
-author: |
-  | Jack Bailey,
-  | The University of Manchester
+author: "Jack Bailey"
 date: |
-  | \small This version: `r format(Sys.time(), '%B %d, %Y')`\thanks{Click \href{https://github.com/jackobailey/econ_half_life/raw/master/_paper/econ-half-life.pdf}{\textbf{here}} for the most recent version of the paper and  \href{https://www.github.com/jackobailey/econ_half_life}{\textbf{here}} for all associated replication materials.}.
+  | \small This version: `r format(Sys.time(), '%B %d, %Y')`\thanks{Click \href{https://github.com/jackobailey/econ_half_life/raw/master/_paper/econ-half-life.pdf}{here} for the most recent version of the paper and  \href{https://www.github.com/jackobailey/econ_half_life}{here} for all associated replication materials.}.
 abstract: |
   | Most economic voting research assumes that voters are retrospective and myopic. That is, they focus on the recent past. Yet testing this assumption is difficult and previous research remains inconclusive. To estimate voter's economic time frames, I specify a new model that borrows insights from the physical sciences. I show that voter myopia is real and that the economic vote is strongest when time frames are short. With a one and half year time frame, the effect falls by half. With a five year time frame, it becomes practically-equivalent to zero. This suggests that voters' economic time frames are longer than past research would have us believe. Still, there is some cause for concern: voters' economic time frames remain short enough that governments are likely to receive undeserved leeway for mistakes they make early in their tenure.
   |
   | \textsf{\textbf{Keywords:}} Economic voting; Retrospective voting; Bayesian methods.
 indent: yes
 fontsize: 12pt
-geometry: margin = 1in
+geometry: margin = 1.15in
 subparagraph: yes
 compact-title: false
+linkcolor: black
+urlcolor: violet
+citecolor: black
 bibliography: _assets/master.bib
 biblio-style: _assets/apsr.bst
 classoption: a4paper
@@ -130,7 +131,7 @@ Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \\
 logit(\pi_{i}) &= \alpha + \beta (C_{0} - C_{t})
 \end{align*}
 
-Consistent with @fiorina1981, respondent $i$'s voting intention, Vote_{i}$, is a function of the difference between conditions now, $C_{0}$, and conditions at some point in the past, $C_{t}$^[Note that this is also the form that conventional economic voting models take. The only difference is that we measure $C_{0} - C_{t}$ using the standard retrospective voting question ("How do you think the *general economic situation in this country* has changed over the *last 12 months*?") and not two separate items that measure voters' perceptions of economic conditions now and in the past.]. That is to say, retrospective voting concerns *change*. @stiers2019, however, use a slightly different model as follows:
+Consistent with @fiorina1981, respondent $i$'s voting intention, $Vote_{i}$, is a function of the difference between conditions now, $C_{0}$, and conditions at some point in the past, $C_{t}$^[Note that this is also the form that conventional economic voting models take. The only difference is that we measure $C_{0} - C_{t}$ using the standard retrospective voting question ("How do you think the *general economic situation in this country* has changed over the *last 12 months*?") and not two separate items that measure voters' perceptions of economic conditions now and in the past.]. That is to say, retrospective voting concerns *change*. @stiers2019, however, use a slightly different model as follows:
 
 \begin{align*}
 Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \\
@@ -282,7 +283,7 @@ As it can be hard to intuit what these parameters really mean, figure \@ref(fig:
 
 Note that as the economic voting effect diminishes, the certainty about its true value actually *increases*. This might seem unusual: why should the model be any more certain about the effect of GDP growth over five years than over, say, one year or even one month? To understand why, reflect on the nature of exponential decay. As I lay out above, any quantity that undergoes this process will eventually decay to such a small value that it is, for all intents and purposes, equal to zero. Thus, no matter what initial value the economic voting effect takes, it will always be equal to zero in the limit where the time interval approaches infinity. Consequently, we know that the larger the time interval, the more certain we should be that the economic voting effect is equal to zero.
 
-Figure \@ref(fig:real-slope-plot) shows how voter myopia conditions voters' willingness to support the incumbent party at three different time intervals. The left-most panel shows how voters' probability of supporting the incumbent changes where they consider the state of the economy in the immediate present. The effect is reasonable in size, if uncertain: voters appear a few percentage points more likely to support the incumbent where the economy is growing than where it is not. Their level of support then appears to diminish as their retrospective time frames increase in the centre- and right-most panels. Indeed, where voters compare the state of the economy now to the state of the economy five years before, there appears to be no practical effect on their probability of voting for the incumbent party^[It is worth also noting that the time interval that voters use and the level of economic growth will have a strong positive correlation. After all, the economy almost always grows over time. Still, as the coronavirus pandemic demonstrates, it is perfectly possible for a country to experience double-digit negative growth in only a very short amount of time.].
+Figure \@ref(fig:real-slope-plot) shows how voter myopia conditions voters' willingness to support the incumbent party at three different time intervals. The left-most panel shows how voters' probability of supporting the incumbent changes where they consider the state of the economy in the immediate present. The effect is reasonable in size, if uncertain: voters appear a few percentage points more likely to support the incumbent where the economy is growing than where it is not. Their level of support then appears to diminish as their retrospective time frames increase in the centre- and right-most panels. Indeed, where voters compare the state of the economy now to the state of the economy five years before, there appears to be no practical effect on their probability of voting for the incumbent party^[It is worth also noting that the time interval that voters use and the level of economic growth will have a strong positive correlation. After all, the economy almost always grows over time. Still, as the coronavirus pandemic demonstrates, it is perfectly possible for a country to experience double-digit negative growth in only a very short period of time.].
 
 ```{r real-slope-plot, fig.cap = paste0("At t = 0, the economic vote shifts the probability of voting for the incumbent by a few percentage points. ", "After ", round(median(half_life_dist), 2), " years, this effect lessens. And after 5 years, it is practically-equivalent to zero. Again, light, medium, and dark areas reflect 95%, 80%, and 50% credible intervals."), fig.width = 6, fig.height = 2.3, echo = F}
 real_slope_plot
