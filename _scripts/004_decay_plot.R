@@ -88,7 +88,7 @@ decay_plot <-
     )
   ) +
   facet_wrap(~ label, nrow = 1) +
-  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0", "½β", "β")) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0β", "½β", "1β")) +
   scale_x_continuous(breaks = c(0, 5)) +
   coord_cartesian(ylim = c(0, 1), clip = "off") +
   labs(
