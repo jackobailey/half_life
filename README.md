@@ -4,7 +4,7 @@
 
 ## Abstract
 
-Most economic voting research assumes that voters are retrospective and myopic. That is, they focus on the recent past. Yet testing this assumption is difficult and previous research remains inconclusive. To estimate voter's economic time frames, I specify a new model that borrows insights from the physical sciences. I show that voter myopia is real and that the economic vote is strongest when time frames are short. With a one and half year time frame, the effect falls by half. With a five year time frame, it becomes practically-equivalent to zero. This suggests that voters' economic time frames are longer than past research would have us believe. Still, there is some cause for concern: voters' economic time frames remain short enough that governments are likely to receive undeserved leeway for mistakes they make early in their tenure.
+Economic voting research assumes that voters focus their attention on the recent past. Yet testing this assumption is difficult and previous research remains inconclusive. To estimate voter's economic time frames, I specify a new model that borrows insights from the physical sciences. I show that voter myopia is real and that the economic vote is strongest when economic time frames are shortest. After a one and half years, the strength of the economic vote falls by half. After five years, it becomes practically equivalent to zero. This suggests that voters are less short-sighted than some past research suggests. Still, there is some cause for concern: voters' economic time frames remain short enough that governments are likely to receive undeserved leeway for mistakes they make early in their tenure.
 
 ## Notes
 
