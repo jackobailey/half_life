@@ -2,13 +2,12 @@
 title: |
   | What's the Half-Life of the Economic Vote?
   | (About a Year and a Half)\thanks{This article benefitted from much useful feedback. I owe particular thanks to Matthew Barnfield, Y, and Z for their time and their advice. Thank you also to Richard McElreath who was kind enough to share the code necessary to make the equation labels that I use here.}
-author: "Jack Bailey"
+author: |
+  | Jack Bailey\thanks{Research Associate, Department of Politics, The University of Manchester, UK. If you have any comments or questions, feel free to contact me either by email (\href{mailto:jack.bailey@manchester.ac.uk}{jack.bailey@manchester.ac.uk}) or on Twitter (\href{https://www.twitter.com/PoliSciJack}{@PoliSciJack}).}
 date: |
   | \small This version: `r format(Sys.time(), '%B %d, %Y')`\thanks{Click \href{https://github.com/jackobailey/econ_half_life/raw/master/_paper/econ-half-life.pdf}{here} for the most recent version of the paper and  \href{https://www.github.com/jackobailey/econ_half_life}{here} for all associated replication materials.}.
 abstract: |
-  | Most economic voting research assumes that voters are retrospective and myopic. That is, they focus on the recent past. Yet testing this assumption is difficult and previous research remains inconclusive. To estimate voter's economic time frames, I specify a new model that borrows insights from the physical sciences. I show that voter myopia is real and that the economic vote is strongest when time frames are short. With a one and half year time frame, the effect falls by half. With a five year time frame, it becomes practically-equivalent to zero. This suggests that voters' economic time frames are longer than past research would have us believe. Still, there is some cause for concern: voters' economic time frames remain short enough that governments are likely to receive undeserved leeway for mistakes they make early in their tenure.
-  |
-  | \textsf{\textbf{Keywords:}} Economic voting; Retrospective voting; Bayesian methods.
+    | Economic voting research assumes that voters focus their attention on the recent past. Yet testing this assumption is difficult and previous research remains inconclusive. To estimate voter's economic time frames, I specify a new model that borrows insights from the physical sciences. I show that voter myopia is real and that the economic vote is strongest when economic time frames are shortest. After a one and half years, the strength of the economic vote falls by half. After five years, it becomes practically equivalent to zero. This suggests that voters are less short-sighted than some past research suggests. Still, there is some cause for concern: voters' economic time frames remain short enough that governments are likely to receive undeserved leeway for mistakes they make early in their tenure.
 indent: yes
 fontsize: 12pt
 geometry: margin = 1.15in
@@ -31,6 +30,10 @@ output:
     number_sections: false
     fig_caption: true
 ---
+
+<!-- Latex setup -->
+
+\doublespacing
 
 \thispagestyle{empty}
 \clearpage
@@ -188,13 +191,13 @@ To circumvent this problem, I use a two-stage approach. In the first stage, I pr
 
 ## Stage 1: Estimating Daily GDP
 
-```{r gdp-plot, fig.cap = "To estimate daily GDP, I fit a spline (*k* = 100) to monthly GDP data from the ONS. I then assign each case to a random date from up to 5 years ago and calculate GDP change between the two dates.", fig.width = 6, fig.height = 2.2, echo = F}
-gdp_plot
-```
-
 Figure 1 shows the three steps that I take to estimate daily UK GDP. Each point in the left-most panel reflects a single estimate from the ONS' monthly time series of UK GDP. These begin in `r gdp$date %>% min() %>% format("%B %Y")`, end in `r gdp$date %>% max() %>% format("%B %Y")`, and are indexed such that July 2016 equals 100. Two patterns are most obvious. First, that UK GDP has tended to grow from one month to the next. Second, that the global financial crisis interrupted this process in the mid-2000s. GDP growth was faster before than after the financial crisis, on average. The rate of growth also appears to differ at different points in time.
 
 The centre-most panel shows the same GDP estimates as the first, though a curve now runs through them. This reflects the average level of GDP across the time series and, due to its form, does not assume that UK GDP changes at a constant rate. To compute this curve, I fit a penalised cubic regression spline with 100 knots to the data. As we can see, the model fits well. Consequently, there is good reason to believe that any estimates that it produces should also reflect historic UK GDP.
+
+```{r gdp-plot, fig.cap = "To estimate daily GDP, I fit a spline to monthly GDP data from the ONS. I then assign each case to a random date up to 5 years before and calculate GDP change between the two dates.", fig.width = 6, fig.height = 2.2, echo = F}
+gdp_plot
+```
 
 The right-most panel shows how I put these estimates to use. The `r m1$data %>% nrow() %>% format(big.mark = ",")` respondents in the data took their survey on some day between 8 April 2004 and 2 February 2014. Imagine, for example, a respondent who took their survey in March 2013. I allocate this respondent to a random date up to five years before the date that they completed their survey, then calculate the time that has passed between the two points. Next, I use my penalised regression spline to estimate UK GDP on each day, then compute GDP growth between the two dates in percentage terms.
 
@@ -204,21 +207,25 @@ The right-most panel shows how I put these estimates to use. The `r m1$data %>% 
 To specify a model that estimates both the economic vote and voter myopia requires considerable flexibility. Such flexibility is difficult to achieve using conventional Frequentist methods. To account for this, I fit my model using Bayesian methods instead. As the model is quite complex, the simplest way to explain it is to start with a simpler, more familiar, model and then build up each element of the model step-by-step. To this end, consider the retrospective voting model that I discuss above:
 
 \begin{align*}
-Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \flab{Likelihood function}\\
-logit(\pi_{i}) &= \alpha + \beta (C_{0} - C_{t}) \flab{Linear model on $\pi_{i}$}
+Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \srlab{Likelihood function}\\
+logit(\pi_{i}) &= \alpha + \beta (C_{0} - C_{t}) \srlab{Linear model on $\pi_{i}$}
 \end{align*}
 
 At present, the object of retrospection is some abstract condition, $C$, which is thought to predict voter $i$'s willingness to vote for the incumbent party, $Vote_{i}$. The latter variable takes the value 1 where voter $i$ said that they would vote for the incumbent party and 0 otherwise^[As my data cover the transition from the 1997-2010 Labour government and the 2010-2015 Coalition government, the incumbent party changes. Where the data were collected before 11 May 2010, when David Cameron became Prime Minister, the incumbent is the Labour Party. After, it is the Conservative Party or the Liberal Democrats, the two parties that formed the Coalition.]. The first step in building the model is to replace this abstract condition with a more meaningful one: the change in the state of the economy. As I mentioned in the previous section, my measure of economic change is the percentage change in GDP between the date that each respondent took their survey and the random date to which I assigned them. As the CMS was collected on a monthly basis, there is likely some survey-specific variation to account for. To this end, I also include an adaptive prior on the intercept, $\alpha$, that allows it to vary from month to month:
 
 \begin{align*}
-Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \flab{Likelihood function}\\
-logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta(\frac{\widehat{GDP_{0}} - \widehat{GDP_{t}}}{\widehat{GDP_{t}}} \times 100) \flab{Linear model on $\pi_{i}$}\\
-\alpha_{\mathrm{wave}} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \flab{Adaptive prior on varying intercepts}\\
-\overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \flab{Prior on grand mean of intercepts}\\
-\sigma_{\alpha} &\sim \mathrm{Exponential}(5) \flab{Prior on standard deviation of intercepts}
+Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \srlab{Likelihood function}\\
+logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta(\frac{\widehat{GDP_{0}} - \widehat{GDP_{t}}}{\widehat{GDP_{t}}} \times 100) \srlab{Linear model on $\pi_{i}$}\\
+\alpha_{\mathrm{wave}} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \srlab{Adaptive prior on varying intercepts}\\
+\overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \srlab{Prior on grand mean of intercepts}\\
+\sigma_{\alpha} &\sim \mathrm{Exponential}(5) \srlab{Prior on standard deviation of intercepts}
 \end{align*}
 
 Note that the economic voting effect, $\beta$, is currently fixed for all values of $t$. No matter if I link the respondent to GDP change over the past five years or the past five days, the estimate remains fixed. But this makes little sense if voters are myopic. Instead, the economic voting effect should vary as a function of $t$. In particular, it should decay as $t$ increases to reflect the fact that people are more likely to forget events that took place a longer time ago.
+
+```{r decay-plot, fig.cap = "The decay constant and half-life are related. When the former increases, the latter decreases. This is because their relationship is deterministic. More specifically, t½ = log(2)/$\\lambda$.", fig.width = 6, fig.height = 2.3, echo = F}
+decay_plot
+```
 
 One way to conceive of voter myopia is as a process of exponential decay^[This is similar to the approach that @hibbs1987 takes, and which I discuss in some detail above. Note, however, that unlike Hibbs, I do not fix the degree of exponential decay a-priori. Instead, I estimate it from the data.]. Where a quantity undergoes exponential decay, it begins at some initial value then diminishes quickly before levelling out as it approaches zero. Such processes are common in the physical sciences, where they are used to study the radioactive decay of chemical elements like iron or uranium or to estimate how long a quantity of some drug might spend in a patients body. I draw on these insights here and approximate voter myopia using the following equation taken from @rosch2014:
 
@@ -227,10 +234,6 @@ N(t) = N_{0}e^{-\lambda t}
 \end{align*}
 
 In this equation, $N(t)$ represents the quantity of some substance $N$ at time $t$. Where $t = 0$, the equation simplifies such that $N(t) = N_{0}$, the substance's initial quantity. As time passes, the substance decays subject to the "decay constant", $\lambda$. Further, the larger the value that the decay constant takes, the faster the substance decays. The amount of time that it takes for the substance to decay by half is known as its "half-life", $t_{1/2}$. Fortunately, the decay constant, $\lambda$, and the half-life parameter, $t_{1/2}$, share a close relationship. As such, it is relatively straight-forward to use the value of the former to compute the value of the latter:
-
-```{r decay-plot, fig.cap = "The decay constant and half-life are related. When the former increases, the latter decreases. This is because the relationship between the two is deterministic. More specifically, t½ = log(2)/$\\lambda$.", fig.width = 6, fig.height = 2.3, echo = F}
-decay_plot
-```
 
 \begin{align*}
 t_{1/2} = \frac{log(2)}{\lambda}
@@ -253,15 +256,15 @@ slope_plot
 Substituting this exponential decay model into the retrospective voting model above gives the final model that I fit to my data. Note that I also include a set of covariates, $x$, that account for any macro-level factors that might otherwise explain how people vote. These include variables to account for the three Prime Ministers that the country had in this period, variables to account for both the passage of time and each Prime Minister's time in office to control for spurious correlation over time [@woolridge2012], and the interaction between each leader and their time in office to account for the costs of governing. Finally, as this is a Bayesian model, I also include a prior distribution for each parameter. In all cases, I use conservative and weakly informative prior distributions that gently regularise my estimates. Given this, I specify the model that I fit to my data as follows:
 
 \begin{align*}
-Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \flab{Likelihood function}\\
-logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0}} - \widehat{GDP_{t}}}{\widehat{GDP_{t}}} \times 100) + \sum_{j = 1}^{6} \delta_{j} x_{ji} \flab{Linear model on $\pi_{i}$}\\
-\beta_{t} &= \beta_{0}e^{-\lambda t} \flab{Exponential decay model on $\beta_{t}$}\\
-\alpha_{j} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \text{ for } j \text{ in } 1..114 \flab{Adaptive prior on varying intercepts}\\
-\overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \flab{Prior on grand mean of intercepts}\\
-\sigma_{\alpha} &\sim \mathrm{Exponential}(5) \flab{Prior on standard deviation of intercepts}\\
-\beta_{0} &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on $\beta$ where $t$ = 0}\\
-\delta_{j} &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on $\delta$ parameters} \text{ for } j \text{ in } 1..6\\
-\lambda &\sim \mathrm{Normal}(0, 0.5) \flab{Prior on the decay constant, $\lambda$}
+Vote_{i} &\sim \mathrm{Bernoulli}(\pi_{i}) \srlab{Likelihood function}\\
+logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0}} - \widehat{GDP_{t}}}{\widehat{GDP_{t}}} \times 100) + \sum_{j = 1}^{6} \delta_{j} x_{ji} \srlab{Linear model on $\pi_{i}$}\\
+\beta_{t} &= \beta_{0}e^{-\lambda t} \srlab{Exponential decay model on $\beta_{t}$}\\
+\alpha_{j} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \text{ for } j \text{ in } 1..114 \srlab{Adaptive prior on varying intercepts}\\
+\overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \srlab{Prior on grand mean of intercepts}\\
+\sigma_{\alpha} &\sim \mathrm{Exponential}(5) \srlab{Prior on standard deviation of intercepts}\\
+\beta_{0} &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on $\beta$ where $t$ = 0}\\
+\delta_{j} &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on $\delta$ parameters} \text{ for } j \text{ in } 1..6\\
+\lambda &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on the decay constant, $\lambda$}
 \end{align*}
 
 
@@ -273,21 +276,21 @@ Table \@ref(tab:table1) shows the resulting parameter estimates from the fitted 
 
 Contrary to the strong effects often found in individual-level economic voting research, I find only weak evidence in favour of the economic vote `r in_text(post_samps$beta0)`. Note that this is not due to the way that I specify my model. As I show in my appendix, a more conventional economic voting model using the raw ONS data and assuming a 12 month time frame shows much the same conclusion (see table \@ref(tab:tablea1)). Instead, these smaller effect sizes likely reflect the fact that, unlike subjective economic perception items, voters' own personal characteristics do not confound the effect that GDP data have on their willingness to vote for the incumbent party.
 
-As past research on voter myopia would have us expect, the decay constant that controls the rate of exponential decay that the economic vote experiences is positive `r in_text(post_samps$lambda)`. As I discuss above, there is a simple transformation that converts between this and the half-life parameter. Doing so reveals that the economic vote has a half-life of `r in_text(half_life_dist, text = "years", inside = F)`, or about a year and a half^[Note that this figure is computed by transforming the entire posterior distribution of the decay constant, $\lambda$, and then taking its median and not simply transforming the point estimate shown in table 1. As such, there may be a small discrepancy between the values that one arrives at using the two approaches.]. In simpler terms, this implies that the economic vote is half as strong where voters compare the state of the economy now to the state of the economy `r round(median(half_life_dist), 2)` years ago than where they consider only the state of the economy in the immediate present.
-
 ```{r real-decay-plot, fig.cap = paste("The economic vote diminishes as the time interval between the survey and reference date increases. At a time interval of", round(median(pars$halflife), 2), "years, the economic voting effect decays to half of its initial value. Here light, medium, and dark areas reflect 95%, 80%, and 50% credible intervals, respectively."), fig.width = 6, fig.height = 3.7, echo = F}
 real_decay_plot
 ```
 
+As past research on voter myopia would have us expect, the decay constant that controls the rate of exponential decay that the economic vote experiences is positive `r in_text(post_samps$lambda)`. As I discuss above, there is a simple transformation that converts between this and the half-life parameter. Doing so reveals that the economic vote has a half-life of `r in_text(half_life_dist, text = "years", inside = F)`, or about a year and a half^[Note that this figure is computed by transforming the entire posterior distribution of the decay constant, $\lambda$, and then taking its median and not simply transforming the point estimate shown in table 1. As such, there may be a small discrepancy between the values that one arrives at using the two approaches.]. In simpler terms, this implies that the economic vote is half as strong where voters compare the state of the economy now to the state of the economy `r round(median(half_life_dist), 2)` years ago than where they consider only the state of the economy in the immediate present.
+
 As it can be hard to intuit what these parameters really mean, figure \@ref(fig:real-decay-plot) shows how the economic voting effect decays as voters' time horizons increase. Where the time interval is equal to zero, the economic vote has the same effect as shown in table 1. As the time interval increases, the economic voting effect diminishes, before eventually approaching zero.
-
-Note that as the economic voting effect diminishes, the certainty about its true value actually *increases*. This might seem unusual: why should the model be any more certain about the effect of GDP growth over five years than over, say, one year or even one month? To understand why, reflect on the nature of exponential decay. As I lay out above, any quantity that undergoes this process will eventually decay to such a small value that it is, for all intents and purposes, equal to zero. Thus, no matter what initial value the economic voting effect takes, it will always be equal to zero in the limit where the time interval approaches infinity. Consequently, we know that the larger the time interval, the more certain we should be that the economic voting effect is equal to zero.
-
-Figure \@ref(fig:real-slope-plot) shows how voter myopia conditions voters' willingness to support the incumbent party at three different time intervals. The left-most panel shows how voters' probability of supporting the incumbent changes where they consider the state of the economy in the immediate present. The effect is reasonable in size, if uncertain: voters appear a few percentage points more likely to support the incumbent where the economy is growing than where it is not. Their level of support then appears to diminish as their retrospective time frames increase in the centre- and right-most panels. Indeed, where voters compare the state of the economy now to the state of the economy five years before, there appears to be no practical effect on their probability of voting for the incumbent party^[It is worth also noting that the time interval that voters use and the level of economic growth will have a strong positive correlation. After all, the economy almost always grows over time. Still, as the coronavirus pandemic demonstrates, it is perfectly possible for a country to experience double-digit negative growth in only a very short period of time.].
 
 ```{r real-slope-plot, fig.cap = paste0("At t = 0, the economic vote shifts the probability of voting for the incumbent by a few percentage points. ", "After ", round(median(half_life_dist), 2), " years, this effect lessens. And after 5 years, it is practically-equivalent to zero. Again, light, medium, and dark areas reflect 95%, 80%, and 50% credible intervals."), fig.width = 6, fig.height = 2.3, echo = F}
 real_slope_plot
 ```
+
+Note that as the economic voting effect diminishes, the certainty about its true value actually *increases*. This might seem unusual: why should the model be any more certain about the effect of GDP growth over five years than over, say, one year or even one month? To understand why, reflect on the nature of exponential decay. As I lay out above, any quantity that undergoes this process will eventually decay to such a small value that it is, for all intents and purposes, equal to zero. Thus, no matter what initial value the economic voting effect takes, it will always be equal to zero in the limit where the time interval approaches infinity. Consequently, we know that the larger the time interval, the more certain we should be that the economic voting effect is equal to zero.
+
+Figure \@ref(fig:real-slope-plot) shows how voter myopia conditions voters' willingness to support the incumbent party at three different time intervals. The left-most panel shows how voters' probability of supporting the incumbent changes where they consider the state of the economy in the immediate present. The effect is reasonable in size, if uncertain: voters appear a few percentage points more likely to support the incumbent where the economy is growing than where it is not. Their level of support then appears to diminish as their retrospective time frames increase in the centre- and right-most panels. Indeed, where voters compare the state of the economy now to the state of the economy five years before, there appears to be no practical effect on their probability of voting for the incumbent party^[It is worth also noting that the time interval that voters use and the level of economic growth will have a strong positive correlation. After all, the economy almost always grows over time. Still, as the coronavirus pandemic demonstrates, it is perfectly possible for a country to experience double-digit negative growth in only a very short period of time.].
 
 # Discussion and Conclusion
 
