@@ -5,46 +5,47 @@
 % Specify fonts
 \setsansfont{Cabin}
 \setmainfont{EB Garamond}
-% \setmathfont{Garamond-Math.otf}[StylisticSet={7,9,11}]
 
-\usepackage[doublespacing]{setspace} % line leading
+% Use double linespacing
+\usepackage{setspace}
+
+% Statistical Rethinking-style labels using \srlab
+\definecolor{mygray}{gray}{0.5}
+\newcommand{\srlab}[1]{\tag*{\textsf{\small{\textcolor{mygray}{#1}}}}}
+
+
+
+% Maths ----------
 
 % Align decimals in tables
 \usepackage{dcolumn}
 
-% Statistical Rethinking-style labels
-\definecolor{mygray}{gray}{0.5}
-\newcommand{\flab}[1]{\tag*{\textsf{\small{\textcolor{mygray}{#1}}}}}
+% Add small fraction
+\usepackage{xfrac}
 
 
-% --- floats -----------------------
-\usepackage{rotating}     % contains {sidewaysfigure} env
 
-% Set a higher threshold for float-only pages
-\renewcommand{\floatpagefraction}{.8}%
-
-
-% --- Styles -----------------------
+% Headings, etc.  ----------
 
 % Call 'titling' package to adjust titles, etc.
 \usepackage{titling}
 
 % Format title
-\pretitle{\begin{center} \LARGE \sffamily \bfseries}
+\pretitle{\begin{center} \onehalfspacing \LARGE \sffamily \bfseries}
 \posttitle{\par\end{center}\vskip 12pt}
 
 % Format author field
-\preauthor{\begin{center} \normalsize}
+\preauthor{\begin{center} \onehalfspacing \large}
 \postauthor{\par\end{center}}
 
 % Format data field
-\predate{\begin{center} \normalsize}
+\predate{\begin{center} \onehalfspacing \large}
 \postdate{\par\end{center}}
 
 % Format abstract title
 \usepackage{abstract}
 \renewcommand{\abstractname}{\sffamily \bfseries Abstract}
-\renewcommand{\abstracttextfont}{\noindent \ignorespaces}
+\renewcommand{\abstracttextfont}{\noindent \doublespacing}
 
 % Format caption style
 \usepackage{caption}
@@ -54,11 +55,8 @@
 % Turn off hyphenation of words across multiple lines
 \hyphenpenalty=100000
 
-% Add small fraction
-\usepackage{xfrac}
 
 
-%  --- SECTION STYLES ---
 \usepackage[small, sf, bf]{titlesec}
 
 % Format section styles
@@ -66,6 +64,3 @@
 \titleformat*{\subsection}{\sffamily \bfseries  \itshape}
 \titleformat*{\subsubsection}{\sffamily \itshape}
 \titleformat*{\paragraph}{\sffamily \bfseries}
-
-% Prevent bookdown trying to make the text fill the whole page
-\raggedbottom
