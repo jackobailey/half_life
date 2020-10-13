@@ -1,5 +1,5 @@
 # What's the Half-Life of Economic Growth?
-# Script 2: Estimate the Half-Life of Economic Growth
+# Script 3: Estimate the Half-Life of Economic Growth
 
 # Jack Bailey
 # The University of Manchester
@@ -173,37 +173,21 @@ cms <-
 # Because we have daily estimates of change in the rate of GDP growth, it's
 # relatively simple to link together our two data sources. But we don't want
 # to just link in the data for the day that each respondent took the survey.
-# Instead, we want to link them to a random day between the first predicted
-# GDP data and the day that the CMS data were collected.
+# Instead, we want to link them to the day 1.58 years before, when the main
+# model suggests the economic voting effect should be reduced by half to
+# around 0.01 and the day that the CMS data were collected.
 
-# First, we'll create a random "link_date" for each case in the data by
-# sampling a single date at random between the date that the respondent
-# took the survey and five years before.
+# First, we'll assign each case to the "link_date" 1.58 years before the
+# date that they took their survey.
 
 cms <-
   cms %>% 
   mutate(
-    link_date =
-      map_dbl(.x = date,
-              .f = function(x){
-                from <- x %m-% years(5)
-                to <- x
-                rdm <- seq(from, to, by = "day")
-                smp <- sample(rdm, size = 1)
-                smp
-              }
-      ) %>% 
-      as.Date(origin = "1970-01-01")
-  )
-
-
-# Next, we'll compute the time interval between when they took the survey
-# and the link_date that we just allocated them to.
-
-cms <- 
-  cms %>% 
-  mutate(
-    time = -(interval(date, link_date)/years(1))
+    link_date = 
+      date %>% 
+      as.numeric() %>% 
+      subtract(1.58*365) %>% 
+      as_date()
   )
 
 
@@ -254,45 +238,24 @@ cms <-
 
 # 4. Fit model ------------------------------------------------------------
 
-# We're going to fit a really simple model, but with a twist. At its heart
-# the model is just a conventional economic voting model. But unlike the
-# economic voting models that we're used to, we also fit a non-linear model
-# to the slope parameter "betaT" that captures the economic voting effect.
-# This non-linear model allows the slope parameter to show exponential
-# decay in the effect of GDP on incumbent voting in line with the amount of
-# time that has passed between the current and the referent date.
+# Fit model using the brms package
 
-# First, let's fit the model to the data. (Note that this model is complex
-# and will likely take several hours to fit on even a high-end computer).
-
-m1 <-
+m3 <-
   brm(
     formula = 
-      bf(
-        inc | weights(w8) ~ pars + betaT*gdp,
-        pars ~ 1 + year + office*leader + (1 | survey),
-        nlf(betaT ~ beta0*exp(-lambda*time)),
-        beta0 + lambda ~ 1,
-        nl = TRUE,
-        decomp = "QR"
-      ),
+      bf(inc | weights(w8) ~ 1 + gdp + year + office*leader + (1 | survey)),
     family = bernoulli(link = "logit"),
     prior =
-      prior(normal(0, 1.5), coef = "Intercept", nlpar = "pars") +
-      prior(normal(0, 0.5), class = "b", nlpar = "pars") +
-      prior(exponential(5), class = "sd", nlpar = "pars") +
-      prior(normal(0, 0.5), nlpar = "beta0") +
-      prior(normal(0, 0.5), nlpar = "lambda"),
+      prior(normal(0, 1.5), class = "Intercept") +
+      prior(normal(0, 0.5), class = "b") +
+      prior(exponential(5), class = "sd"),
     data = cms,
     iter = 2000,
     refresh = 5,
     chains = 4,
     cores = 4,
     seed = 666,
-    control = 
-      list(adapt_delta = .99,
-           max_treedepth = 15),
-    file = here("_output", "m1")
+    file = here("_output", "m3")
   )
 
 
@@ -301,7 +264,7 @@ m1 <-
 # inferences we make from the model are suspect. No errors here, so looks
 # like we're good to go.
 
-check_hmc_diagnostics(m1$fit)
+check_hmc_diagnostics(m3$fit)
 
 
 
@@ -309,9 +272,10 @@ check_hmc_diagnostics(m1$fit)
 
 # Save session information
 
-save_info(here("_output", "_session_info", "002_cms.txt"))
+save_info(here("_output", "_session_info", "S003_at_halflife.txt"))
 
 
 # One last thing...
 
 thanks()
+

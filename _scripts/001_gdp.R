@@ -166,6 +166,13 @@ saveRDS(gdp_change, here("_output", "pred_gdp.rds"))
 
 
 
-# 4. Thank you for replicating! -------------------------------------------
+# 4. Replication details --------------------------------------------------
 
-# Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
+# Save session information
+
+save_info(here("_output", "_session_info", "001_gdp.txt"))
+
+
+# One last thing...
+
+thanks()

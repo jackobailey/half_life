@@ -207,13 +207,12 @@ cms <-
 
 # 4. Fit model ------------------------------------------------------------
 
-# Fit model
+# Fit model using the brms package
 
 m2 <-
   brm(
     formula = 
-      bf(inc | weights(w8) ~ 1 + gdp + year + office*leader + (1 | survey),
-         decomp = "QR"),
+      bf(inc | weights(w8) ~ 1 + gdp + year + office*leader + (1 | survey)),
     family = bernoulli(link = "logit"),
     prior =
       prior(normal(0, 1.5), class = "Intercept") +
@@ -238,6 +237,14 @@ check_hmc_diagnostics(m2$fit)
 
 
 
-# 5. Thanks for replicating! ----------------------------------------------
+# 5. Replication details --------------------------------------------------
 
-# Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
+# Save session information
+
+save_info(here("_output", "_session_info", "S001_standard.txt"))
+
+
+# One last thing...
+
+thanks()
+

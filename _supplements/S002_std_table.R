@@ -139,6 +139,14 @@ sink()
 
 
 
-# 3. Thanks for replicating! ----------------------------------------------
+# 3. Replication details --------------------------------------------------
 
-# Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
+# Save session information
+
+save_info(here("_output", "_session_info", "S002_std_table.txt"))
+
+
+# One last thing...
+
+thanks()
+

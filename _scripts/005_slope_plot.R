@@ -86,6 +86,13 @@ slope_plot <-
 
 
 
-# 4. Thanks for replicating! ----------------------------------------------
+# 3. Replication details --------------------------------------------------
 
-# Any questions, feel free to get in touch at jack.bailey@manchester.ac.uk.
+# Save session information
+
+save_info(here("_output", "_session_info", "005_slope_plot.txt"))
+
+
+# One last thing...
+
+thanks()

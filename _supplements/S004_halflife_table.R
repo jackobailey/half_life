@@ -1,5 +1,5 @@
 # What's the Half-Life of Economic Growth?
-# Script 8: Table
+# Supplement 2: Standard Economic Vote Table
 
 # Jack Bailey
 # The University of Manchester
@@ -27,9 +27,9 @@ library(brms)
 library(here)
 
 
-# Load half-life model
+# Load conventional economic voting model
 
-m1 <- readRDS(here("_output", "m1.rds"))
+m3 <- readRDS(here("_output", "m3.rds"))
 
 
 
@@ -37,7 +37,7 @@ m1 <- readRDS(here("_output", "m1.rds"))
 
 # Get each draw from the posterior distribution
 
-draws <- posterior_samples(m1)
+draws <- posterior_samples(m3)
 
 
 # Get regression coefficients
@@ -45,15 +45,14 @@ draws <- posterior_samples(m1)
 draws <-
   draws %>% 
   select(
-    `\\textsf{Intercept}` = b_pars_Intercept,
-    `\\textsf{GDP (t = 0)}` = b_beta0_Intercept,
-    `\\textsf{Decay Constant}` = b_lambda_Intercept,
-    `\\textsf{Years Passed}` = b_pars_year,
-    `\\textsf{Time in Office}` = b_pars_office,
-    `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_pars_leaderGordonBrown,
-    `\\textsf{David Cameron (vs. Tony Blair)}` = b_pars_leaderDavidCameron,
-    `\\textsf{Gordon Brown $\\times$ Time}` = `b_pars_office:leaderGordonBrown`,
-    `\\textsf{David Cameron $\\times$ Time}` = `b_pars_office:leaderDavidCameron`
+    `\\textsf{Intercept}` = b_Intercept,
+    `\\textsf{Year-on-Year GDP Change}` = b_gdp,
+    `\\textsf{Years Passed}` = b_year,
+    `\\textsf{Time in Office}` = b_office,
+    `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_leaderGordonBrown,
+    `\\textsf{David Cameron (vs. Tony Blair)}` = b_leaderDavidCameron,
+    `\\textsf{Gordon Brown $\\times$ Time}` = `b_office:leaderGordonBrown`,
+    `\\textsf{David Cameron $\\times$ Time}` = `b_office:leaderDavidCameron`
   )
 
 
@@ -69,8 +68,7 @@ table <-
         levels =
           c(
             "\\textsf{Intercept}",
-            "\\textsf{GDP (t = 0)}",
-            "\\textsf{Decay Constant}",
+            "\\textsf{Year-on-Year GDP Change}",
             "\\textsf{Years Passed}",
             "\\textsf{Time in Office}",
             "\\textsf{Gordon Brown (vs. Tony Blair)}",
@@ -103,8 +101,8 @@ table <-
     escape = FALSE,
     align = c("l ", rep("D{.}{.}{-1} ", 4)),
     linesep = "",
-    caption = "Parameter estimates from the half-life model predicting incumbent voting intention. Data come from the BES Continuous Monitoring Survey, 2004--2014.",
-    label = "table1"
+    caption = "Parameter estimates from my economic voting model where all respondents are linked to GDP growth over the past 1.58 years. This period of time is equal to the half-life parameter than I estimate with my main model. Data come from the BES Continuous Monitoring Survey, 2004--2014.",
+    label = "tablea1"
   ) %>% 
   kable_styling(
     position = "center"
@@ -121,20 +119,21 @@ table <-
       "\\\\midrule\\\n",
       "\\\\textsf{N (Individuals)} & ",
       "\\\\multicolumn{4}{r}{$",
-      format(nrow(m1$data), big.mark = ","),
+      format(nrow(m2$data), big.mark = ","),
       "$}\\\\\\\\\n",
       "\\\\textsf{N (Survey)} & ",
       "\\\\multicolumn{4}{r}{$",
-      length(unique(m1$data$survey)),
+      length(unique(m2$data$survey)),
       "$}\\\\\\\\\n",
       "\\\\bottomrule\\\n"
     )
   )
 
 
+# Print table
 # Save table to disk
 
-sink(file = here("_paper", "_assets", "table1.tex"))
+sink(file = here("_paper", "_assets", "tablea2.tex"))
 cat(table)
 sink()
 
@@ -144,7 +143,7 @@ sink()
 
 # Save session information
 
-save_info(here("_output", "_session_info", "008_table.txt"))
+save_info(here("_output", "_session_info", "S004_halflife_table.txt"))
 
 
 # One last thing...
