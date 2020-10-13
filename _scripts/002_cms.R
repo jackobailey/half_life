@@ -262,7 +262,8 @@ cms <-
 # decay in the effect of GDP on incumbent voting in line with the amount of
 # time that has passed between the current and the referent date.
 
-# First, let's fit the model to the data.
+# First, let's fit the model to the data. (Note that this model is complex
+# and will likely take several hours to fit on even a high-end computer).
 
 m1 <-
   brm(
