@@ -1,5 +1,5 @@
 # What's the Half-Life of Economic Growth?
-# Supplement 1: Standard Economic Vote Table
+# Supplement 2: Standard Economic Vote Table
 
 # Jack Bailey
 # The University of Manchester
