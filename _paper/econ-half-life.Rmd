@@ -83,6 +83,18 @@ post_samps <-
   )
 
 
+# Load second robustness model
+
+m3 <- readRDS(here("_output", "m3.rds"))
+
+
+# Get posterior economic voting effect from model 3
+
+m3_econ <- 
+  posterior_samples(m3, pars = "gdp") %>% 
+  tibble()
+
+
 # Load figure scripts
 
 source(here("_scripts", "003_gdp_plot.R"))
@@ -280,7 +292,7 @@ Contrary to the strong effects often found in individual-level economic voting r
 real_decay_plot
 ```
 
-As past research on voter myopia would have us expect, the decay constant that controls the rate of exponential decay that the economic vote experiences is positive `r in_text(post_samps$lambda)`. As I discuss above, there is a simple transformation that converts between this and the half-life parameter. Doing so reveals that the economic vote has a half-life of `r in_text(half_life_dist, text = "years", inside = F)`, or about a year and a half^[Note that this figure is computed by transforming the entire posterior distribution of the decay constant, $\lambda$, and then taking its median and not simply transforming the point estimate shown in table 1. As such, there may be a small discrepancy between the values that one arrives at using the two approaches.]. In simpler terms, this implies that the economic vote is half as strong where voters compare the state of the economy now to the state of the economy `r round(median(half_life_dist), 2)` years ago than where they consider only the state of the economy in the immediate present.
+As past research on voter myopia would have us expect, the decay constant that controls the rate of exponential decay that the economic vote experiences is positive `r in_text(post_samps$lambda)`. As I discuss above, there is a simple transformation that converts between this and the half-life parameter. Doing so reveals that the economic vote has a half-life of `r in_text(half_life_dist, text = "years", inside = F)`, or about a year and a half^[Note that this figure is computed by transforming the entire posterior distribution of the decay constant, $\lambda$, and then taking its median and not simply transforming the point estimate shown in table 1. As such, there may be a small discrepancy between the values that one arrives at using these two approaches.]. In simpler terms, this implies that the economic vote is half as strong where voters compare the state of the economy now to the state of the economy `r round(median(half_life_dist), 2)` years ago than where they consider only the state of the economy in the immediate present^[To ensure that this estimate is robust, I also fit a model where I link *all* respondents to GDP change over the past `r round(median(half_life_dist), 2)` years, i.e. at the expected half-life. Consistent with the model here, this produces an economic voting effect of `r in_text(m3_econ$b_gdp, inside = F)`, half the initial economic voting effect shown in table \@ref(tab:table1) (see table \@ref(tab:tablea2))].
 
 As it can be hard to intuit what these parameters really mean, figure \@ref(fig:real-decay-plot) shows how the economic voting effect decays as voters' time horizons increase. Where the time interval is equal to zero, the economic vote has the same effect as shown in table 1. As the time interval increases, the economic voting effect diminishes, before eventually approaching zero.
 
@@ -319,3 +331,5 @@ Finally, there are many opportunities to extend the analysis that I present here
 \setcounter{table}{0}
 
 \input{_assets/tablea1.tex}
+
+\input{_assets/tablea2.tex}

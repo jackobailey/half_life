@@ -46,7 +46,7 @@ draws <-
   draws %>% 
   select(
     `\\textsf{Intercept}` = b_Intercept,
-    `\\textsf{Year-on-Year GDP Change}` = b_gdp,
+    `\\textsf{GDP Change (t = 1.58)}` = b_gdp,
     `\\textsf{Years Passed}` = b_year,
     `\\textsf{Time in Office}` = b_office,
     `\\textsf{Gordon Brown (vs. Tony Blair)}` = b_leaderGordonBrown,
@@ -68,7 +68,7 @@ table <-
         levels =
           c(
             "\\textsf{Intercept}",
-            "\\textsf{Year-on-Year GDP Change}",
+            "\\textsf{GDP Change (t = 1.58)}",
             "\\textsf{Years Passed}",
             "\\textsf{Time in Office}",
             "\\textsf{Gordon Brown (vs. Tony Blair)}",
@@ -101,8 +101,8 @@ table <-
     escape = FALSE,
     align = c("l ", rep("D{.}{.}{-1} ", 4)),
     linesep = "",
-    caption = "Parameter estimates from my economic voting model where all respondents are linked to GDP growth over the past 1.58 years. This period of time is equal to the half-life parameter than I estimate with my main model. Data come from the BES Continuous Monitoring Survey, 2004--2014.",
-    label = "tablea1"
+    caption = "Parameter estimates from my economic voting model where all respondents are linked to GDP growth over the past 1.58 years. This is equal to the half-life parameter than I estimate with my main model. Data come from the BES Continuous Monitoring Survey, 2004--2014.",
+    label = "tablea2"
   ) %>% 
   kable_styling(
     position = "center"
@@ -119,11 +119,11 @@ table <-
       "\\\\midrule\\\n",
       "\\\\textsf{N (Individuals)} & ",
       "\\\\multicolumn{4}{r}{$",
-      format(nrow(m2$data), big.mark = ","),
+      format(nrow(m3$data), big.mark = ","),
       "$}\\\\\\\\\n",
       "\\\\textsf{N (Survey)} & ",
       "\\\\multicolumn{4}{r}{$",
-      length(unique(m2$data$survey)),
+      length(unique(m3$data$survey)),
       "$}\\\\\\\\\n",
       "\\\\bottomrule\\\n"
     )
