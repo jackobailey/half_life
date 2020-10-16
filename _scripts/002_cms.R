@@ -208,7 +208,7 @@ cms <-
 
 
 # Now, we'll merge in the predicted GDP data for the day of the survey
-# from "1_gdp.R". This is a little tricky, because left_join() doesn't
+# from "001_gdp.R". This is a little tricky, because left_join() doesn't
 # behave well when linking on dates, so we'll convert the dates in cms
 # and gdp to character vectors to make it work.
 
@@ -228,7 +228,7 @@ cms <-
   )
 
 
-# And now we'll merge in the predicted GDP data from "1_gdp.R" based on
+# And now we'll merge in the predicted GDP data from "001_gdp.R" based on
 # the random "link_date" we created.
 
 cms <-
