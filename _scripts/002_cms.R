@@ -80,7 +80,7 @@ cms <-
   select(-date1, -date2)
 
 
-# We'll convert the voting intention item from specific parties t0  "Incumbent"
+# We'll convert the voting intention item from specific parties to "Incumbent"
 # or "Other" based on who was in power at what time. I've kept in those who
 # said "Don't know", etc., as it's probable that some voters who support the
 # incumbent will pick these options when things get bad so that they don't have
