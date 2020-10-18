@@ -213,7 +213,7 @@ gdp_plot
 
 Figure \@ref(fig:gdp-plot) illustrates how I estimate daily UK GDP. Each point in the left-most panel represents a single estimate from the ONS' monthly time series of UK GDP. These begin in `r gdp$date %>% min() %>% format("%B %Y")`, end in `r gdp$date %>% max() %>% format("%B %Y")`, and are indexed such that July 2016 equals 100. As we can see, and as I mentioned above, UK GDP showed almost continuous growth over this period. Note, however, that the global financial crisis knocked this growth off course, with the economy receding by around 5 points before it started to grow again.
 
-The centre-most panel shows the same GDP estimates, though a curve now runs through them. To compute this, I fit a penalised cubic regression spline with 100 knots to the raw ONS time series. As the centre-most panel makes clear, this model fits well and does not show any great deviation from the path that the data suggest. As such, it would seem reasonable to believe that any estimates that it produces for intervening periods should also reflect historic changes in UK GDP.
+The centre-most panel shows the same estimates of UK GDP, though a curve now runs through them. To compute it, I fit a penalised cubic regression spline with 100 knots to the raw ONS time series data. As the centre-most panel makes clear, the model fits well and does not show any great deviation from the path that the data suggest. Given this, it would seem reasonable to assume that any estimates that the model produces for the time periods between each month should also reflect historic levels of UK GDP.
 
 The right-most panel shows how I put these estimates to use. All respondents took their survey on some date between 8 April 2004 and 2 February 2014. Imagine, for example, a respondent who took their survey in March 2013. I allocate this respondent to a random date up to five years before the date on which they completed their survey. I then calculate the time that has passed between the two points. Next, I use the model to estimate UK GDP on each of these two days, and then compute UK GDP growth between the two dates in percentage terms.
 
@@ -278,7 +278,7 @@ logit(\pi_{i}) &= \alpha_{\mathrm{wave}[i]} + \beta_{t}(\frac{\widehat{GDP_{0}} 
 \alpha_{j} &\sim \mathrm{Normal}(\overline{\alpha}, \sigma_{\alpha}) \text{ for } j \text{ in } 1..114 \srlab{Adaptive prior on varying intercepts}\\
 \overline{\alpha} &\sim \mathrm{Normal}(0, 1.5) \srlab{Prior on grand mean of intercepts}\\
 \sigma_{\alpha} &\sim \mathrm{Exponential}(5) \srlab{Prior on standard deviation of intercepts}\\
-\beta_{0} &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on $\beta$ where $t$ = 0}\\
+\beta_{0} &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on $\beta$ where $t = 0$}\\
 \delta_{j} &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on $\delta$ parameters} \text{ for } j \text{ in } 1..6\\
 \lambda &\sim \mathrm{Normal}(0, 0.5) \srlab{Prior on the decay constant, $\lambda$}
 \end{align*}
@@ -298,7 +298,7 @@ As past research on voter myopia would have us expect, the decay constant that c
 real_decay_plot
 ```
 
-As it can be hard to work out what these parameters really mean, figure \@ref(fig:real-decay-plot) shows how the economic voting effect decays as voters' economic time frames increase. Where the time interval is equal to zero, the economic vote has the same effect as shown in table 1. As the time interval increases, the economic voting effect diminishes, before eventually approaching zero towards the five year mark.
+As it can be hard to work out what these parameters really mean, figure \@ref(fig:real-decay-plot) shows how the economic voting effect decays as voters' economic time frames increase. Where the time interval is equal to zero, the economic vote has the same effect as shown in table 1. As the time interval increases, the economic voting effect recedes, before it eventually diminishes to zero as it approaches the five year mark.
 
 Note that as the economic voting effect diminishes, the uncertainty interval around its true value actually *decreases*. This might seem unusual: why should the model be any more certain about the effect of GDP growth over five years than, say, over one year or even over one month? To understand why, reflect on the nature of exponential decay. As I lay out above, any quantity that undergoes this process will eventually decay to such a small value that it is, for all intents and purposes, equal to zero. This is an informative constraint: it implies that we know that the larger the time interval, the more certain we should be that the economic vote equals zero. Thus, the uncertainty interval grows narrower to reflect this.
 
