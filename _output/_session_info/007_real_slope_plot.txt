@@ -30,7 +30,7 @@ loaded via a namespace (and not attached):
   [1] readxl_1.3.1         backports_1.1.10     plyr_1.8.6          
   [4] igraph_1.2.5         svUnit_1.0.3         splines_4.0.3       
   [7] crosstalk_1.1.0.1    rstantools_2.1.1     inline_0.3.16       
- [10] digest_0.6.25        htmltools_0.5.0      rsconnect_0.8.16    
+ [10] digest_0.6.26        htmltools_0.5.0      rsconnect_0.8.16    
  [13] fansi_0.4.1          openxlsx_4.2.2       modelr_0.1.8        
  [16] RcppParallel_5.0.2   matrixStats_0.57.0   xts_0.12.1          
  [19] prettyunits_1.1.1    colorspace_1.4-1     blob_1.2.1          

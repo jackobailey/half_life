@@ -63,7 +63,7 @@ loaded via a namespace (and not attached):
 [100] modelr_0.1.8         crayon_1.3.4         rmarkdown_2.4       
 [103] grid_4.0.3           readxl_1.3.1         data.table_1.13.0   
 [106] blob_1.2.1           callr_3.5.1          threejs_0.3.3       
-[109] reprex_0.3.0         digest_0.6.25        webshot_0.5.2       
+[109] reprex_0.3.0         digest_0.6.26        webshot_0.5.2       
 [112] xtable_1.8-4         httpuv_1.5.4         RcppParallel_5.0.2  
 [115] stats4_4.0.3         munsell_0.5.0        viridisLite_0.3.0   
 [118] shinyjs_2.0.0       
