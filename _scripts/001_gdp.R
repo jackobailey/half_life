@@ -157,6 +157,14 @@ gdp_change <-
   ) %>% 
   relocate(date, .after = 1) %>% 
   select(-time)
+
+
+# We'll also add a "time" variable to the data that indexes each value from
+# "1997-01-01" == 1 in day units.
+
+gdp_change <- 
+  gdp_change %>% 
+  mutate(time = 1:n())
   
 
 # Finally, we'll save the data to disk so that we can load it quickly when

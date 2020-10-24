@@ -1,5 +1,5 @@
 # What's the Half-Life of Economic Growth?
-# Script 2: Estimate the Half-Life of Economic Growth
+# Script 2: Compile CMS Data
 
 # Jack Bailey
 # The University of Manchester
@@ -32,19 +32,12 @@ library(magrittr)
 library(jbmisc)     # https://github.com/jackobailey/jbmisc
 library(haven)
 library(purrr)
-library(rstan)
-library(brms)
 library(here)
 
 
 # Load data from the British Election Study Continuous Monitoring Surveys
 
-cms <- read_dta(here("_data", "cms.zip"))
-
-
-# Load predicted GDP data from "001_gdp.R"
-
-gdp <- readRDS(here("_output", "pred_gdp.rds"))
+dta <- read_dta(here("_data", "cms.zip"))
 
 
 
@@ -54,8 +47,8 @@ gdp <- readRDS(here("_output", "pred_gdp.rds"))
 # are going to use the weights, the survey ID, the date that each respondent
 # took their survey, and how each respondent said that they would vote.
 
-cms <- 
-  cms %>% 
+dta <- 
+  dta %>% 
   select(
     w8 = W8,
     survey = yrmon,
@@ -68,16 +61,32 @@ cms <-
 # Next, we'll combine the two date variables into a single variable and
 # remove the originals to keep things neat and tidy.
 
-cms <-
-  cms %>% 
+dta <-
+  dta %>% 
   mutate(
     date = 
-      ifelse(is.na(cms$date1) == T,
-             cms$date2,
-             cms$date1) %>% 
+      ifelse(is.na(date1) == T,
+             date2,
+             date1) %>% 
       as.Date(origin = "1970-01-01")
   ) %>% 
   select(-date1, -date2)
+
+
+# Next, we'll create a time tracking variable that counts up each month since
+# the first one in the data. We'll also order the rows by time.
+
+dta <- 
+  dta %>% 
+  mutate(
+    month = 
+      date %>% 
+      floor_date("months") %>% 
+      interval(min(., na.rm = T), .) %>% 
+      divide_by(months(1)) %>% 
+      add(1)
+  ) %>% 
+  arrange(month)
 
 
 # We'll convert the voting intention item from specific parties to "Incumbent"
@@ -88,8 +97,8 @@ cms <-
 # supporters will pick them when things are good. Keeping them in not only
 # preserves statistical power, it also takes this into account.
 
-cms <-
-  cms %>% 
+dta <-
+  dta %>% 
   mutate(
     vote =
       vote %>% 
@@ -99,11 +108,13 @@ cms <-
         "Con" = "Conservative",
         "Lab" = "Labour",
         "Lib" = "Liberal Democrat",
-        "Oth" = "Other Party"
+        "Oth" = "Other Party",
+        "Oth" = "Don't know",
+        "Oth" = "None, won't vote"
       )
   ) %>% 
   mutate(
-    inc = 
+    vote = 
       case_when(
         # Recode those who support an incumbent party as "Incumbent"
         date < "2010-05-06" & vote == "Lab" ~ "Incumbent",
@@ -117,195 +128,109 @@ cms <-
   )
 
 
-# Next, we'll create a factor variable that tracks who the current Prime
-# Minister was at the time of the survey so that we can account for any
-# leader-specific effects that might affect whether respondents support
-# the incumbent or not.
+# We'll also create a new variable "from" that tracks the time that has
+# passed since 1 January 1997 (the earliest date in the GDP data). This
+# is useful for linking each case to the relevant GDP data in the Stan
+# model later on. Note that this is indexed such that the first value
+# is 1, not 0.
 
-cms <-
-  cms %>% 
+dta <- 
+  dta %>% 
   mutate(
-    leader =
-      case_when(
-        date < "2007-06-27" ~ "Tony Blair",
-        date >= "2007-06-27" & date < "2010-05-11" ~ "Gordon Brown",
-        date >= "2010-05-11" ~ "David Cameron"
+    from = 
+      interval(
+        start = "1996-12-31",
+        end = date
       ) %>% 
-      factor(levels = c("Tony Blair", "Gordon Brown", "David Cameron"))
+      divide_by(days(1)) %>% 
+      floor()
   )
 
 
-# We'll also create a new variable "office" that counts how long each
-# Prime Minister has been in power.
+# We also need to calculate for each case in the data how many monthly
+# comparisons they will be allocated to. This varies depending on if they
+# took their survey during the 1997-2010 Labour government or the 2010-2015
+# Coalition government as we don't want to allocate voters to GDP change
+# that took place under the previous government.
 
-cms <- 
-  cms %>% 
+dta <- 
+  dta %>% 
   mutate(
-    office =
-      case_when(
-        leader == "Tony Blair" ~ interval("1997-05-02", date)/years(1),
-        leader == "Gordon Brown" ~ interval("2007-06-27", date)/years(1),
-        leader == "David Cameron" ~ interval("2010-05-11", date)/years(1)
+    term = ifelse(date <= "2010-05-06", "1997-05-01", "2010-05-06"),
+    time =
+      interval(
+        start = term,
+        end = date,
+      ) %>% 
+      divide_by(days(60)) %>% 
+      floor()
+  )
+
+
+# Now, we'll remove any missing data or cases with zero comparisons with
+# list-wise deletion.
+
+dta <- 
+  dta %>% 
+  filter(time != 0) %>% 
+  na.omit()
+
+
+# Next, we'll then loop over the data with map and create a vector of each
+# of the dates that each case will be linked to in the final Stan model.
+# We'll call this "to".
+
+max_time <- max(dta$time)
+
+dta <- 
+  dta %>% 
+  mutate(
+    to = 
+      map2(
+        .x = date,
+        .y = time,
+        .f = function(x, y){
+          
+          # Calculate comparison dates
+          to <- 
+            seq(1, y) %>%
+            multiply_by(-60) %>%
+            as_date(origin = x) %>% 
+            as.numeric() %>% 
+            subtract(9861) %>%  # 1996-12-31 in numeric
+            floor()
+          
+          # Add in very large values to cause a problem if Stan calls them
+          to <- c(to,rep(1e6, max_time - y))
+        }
       )
   )
 
 
-# We'll also create a new variable "year" that tracks the time that has
-# passed since the first date of the survey in years.
+# Finally, we'll create a matrix of the "to" values that we have just worked
+# out so that we can feed them into Stan later on. First, we'll create an
+# empty matrix and populate it with Inf values so that Stan will notify us
+# if something goes wrong.
 
-cms <- 
-  cms %>% 
-  mutate(
-    year = interval(min(as_date(cms$date), na.rm = T), as_date(date))/years(1)
-  )
-
-
-# Finally, we'll remove any missing data list-wise.
-
-cms <- 
-  cms %>% 
-  na.omit()
+to_mtrx <- do.call("rbind", dta$to)
 
 
 
-# 3. Link predicted GDP data ----------------------------------------------
+# 3. Save data ------------------------------------------------------------
 
-# Because we have daily estimates of change in the rate of GDP growth, it's
-# relatively simple to link together our two data sources. But we don't want
-# to just link in the data for the day that each respondent took the survey.
-# Instead, we want to link them to a random day between the first predicted
-# GDP data and the day that the CMS data were collected.
+# First, we'll save the individual-level data so that we can recall it when
+# we fit our models.
 
-# First, we'll create a random "link_date" for each case in the data by
-# sampling a single date at random between the date that the respondent
-# took the survey and five years before.
-
-cms <-
-  cms %>% 
-  mutate(
-    link_date =
-      map_dbl(.x = date,
-              .f = function(x){
-                from <- x %m-% years(5)
-                to <- x
-                rdm <- seq(from, to, by = "day")
-                smp <- sample(rdm, size = 1)
-                smp
-              }
-      ) %>% 
-      as.Date(origin = "1970-01-01")
-  )
+saveRDS(dta, here("_output", "dta.rds"))
 
 
-# Next, we'll compute the time interval between when they took the survey
-# and the link_date that we just allocated them to.
+# Second, we'll save the "to matrix" so that we can recall it later too.
 
-cms <- 
-  cms %>% 
-  mutate(
-    time = -(interval(date, link_date)/years(1))
-  )
-
-
-# Now, we'll merge in the predicted GDP data for the day of the survey
-# from "001_gdp.R". This is a little tricky, because left_join() doesn't
-# behave well when linking on dates, so we'll convert the dates in cms
-# and gdp to character vectors to make it work.
-
-cms <- 
-  cms %>% 
-  mutate(date = as.character(date))
-
-gdp <- 
-  gdp %>% 
-  mutate(date = as.character(date))
-
-cms <-
-  cms %>% 
-  left_join(gdp, by = "date") %>% 
-  rename(
-    level0_est = level_est
-  )
-
-
-# And now we'll merge in the predicted GDP data from "001_gdp.R" based on
-# the random "link_date" we created.
-
-cms <-
-  cms %>% 
-  mutate(link_date = as.character(link_date)) %>% 
-  left_join(gdp, by = c("link_date" = "date"))
-
-
-# Finally, we'll calculate the GDP growth between the date that the survey
-# took place and the randomly-chosen link date.
-
-cms <-
-  cms %>%
-  mutate(
-    gdp = ((level0_est - level_est)/level_est)*100
-  ) %>%
-  select(
-    -level0_est,
-    -level_est
-  )
+saveRDS(to_mtrx, here("_output", "to_mtrx.rds"))
 
 
 
-# 4. Fit model ------------------------------------------------------------
-
-# We're going to fit a really simple model, but with a twist. At its heart
-# the model is just a conventional economic voting model. But unlike the
-# economic voting models that we're used to, we also fit a non-linear model
-# to the slope parameter "betaT" that captures the economic voting effect.
-# This non-linear model allows the slope parameter to show exponential
-# decay in the effect of GDP on incumbent voting in line with the amount of
-# time that has passed between the current and the referent date.
-
-# First, let's fit the model to the data. (Note that this model is complex
-# and will likely take several hours to fit on even a high-end computer).
-
-m1 <-
-  brm(
-    formula = 
-      bf(
-        inc | weights(w8) ~ pars + betaT*gdp,
-        pars ~ 1 + year + office*leader + (1 | survey),
-        nlf(betaT ~ beta0*exp(-lambda*time)),
-        beta0 + lambda ~ 1,
-        nl = TRUE,
-        decomp = "QR"
-      ),
-    family = bernoulli(link = "logit"),
-    prior =
-      prior(normal(0, 1.5), coef = "Intercept", nlpar = "pars") +
-      prior(normal(0, 0.5), class = "b", nlpar = "pars") +
-      prior(exponential(5), class = "sd", nlpar = "pars") +
-      prior(normal(0, 0.5), nlpar = "beta0") +
-      prior(normal(0, 0.5), nlpar = "lambda"),
-    data = cms,
-    iter = 2000,
-    refresh = 5,
-    chains = 4,
-    cores = 4,
-    seed = 666,
-    control = 
-      list(adapt_delta = .99,
-           max_treedepth = 15),
-    file = here("_output", "m1")
-  )
-
-
-# Now that the model has finished fitting, let's check that there aren't
-# any divergent transitions or other issues that might suggest that the
-# inferences we make from the model are suspect. No errors here, so looks
-# like we're good to go.
-
-check_hmc_diagnostics(m1$fit)
-
-
-
-# 5. Replication details --------------------------------------------------
+# 4. Replication details --------------------------------------------------
 
 # Save session information
 
