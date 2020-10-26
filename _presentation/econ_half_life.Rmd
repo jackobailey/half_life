@@ -133,25 +133,99 @@ class: inverse, center, middle
 
 ## Voter-centric Research
 
+--
+
 ### Steirs et al. (2019)
+
+--
 
 Voters are "attentive to the government's performance in the long run as well as the short" (p. 647)
 
+--
+
+Model incumbent support as function of past government satisfaction and economic satisfaction
+
+--
+
+But their models focus on *levels* and not *change in levels* so tell us little about retrospective vote
+
+--
+
 ### Huber et al. (2012) and Healy & Lenz (2014)
+
+--
+
+Voters use heuristics: peak-end rule
+
+--
+
+Voters intend to judge based on cumulative performance, but instead "substitute the end for the whole"
 
 ---
 
 ## Electorate-centric Research
 
+--
+
 ### Hibbs (1987)
 
+--
+
+Examines both if electorates are myopic and what functional form their myopia takes
+
+--
+
+Assumes the effect of economic change decays at some known exponential rate
+
+--
+
+Uses this to weight year-on-year economic change for each quarter in post-war each presidential term
+
+--
+
 ### Wlezien (2015)
+
+--
+
+Similar approach to Hibbs, but more elections
+
+--
+
+Argues for a logistic, not exponential decay function
 
 ---
 
 ## A Hybrid Approach
 
-Text
+--
+
+Both approaches have some problems
+
+--
+
+**Voter-centric:** Economic perception items suffer from serious shortcomings (Bailey, 2019; Bisgaard, 2019; Evans & Pickup, 2010)
+
+--
+
+**Electorate-centric:** Almost impossible to overcome the problem of ecological inference (Stewart & Clarke, 2017)
+
+--
+
+Why not combine the best of both approaches?
+
+--
+
+**Individual-level vote choice:** Avoids having to deal with problems of ecological inference
+
+--
+
+**Aggregate-level economic statistics:** Avoids any systematic perceptual biases that leak into reported perceptions
+
+---
+
+class: inverse, center, middle
+
+# Data and Methods
 
 ---
 
@@ -167,11 +241,27 @@ BES Continuous Monitoring Survey (Whiteley et al., 2014)
 
 --
 
+Monthly cross-sections, April 2004 to February 2014
+
+--
+
+132,369 people took part
+
+--
+
+DV: Vote choice (1 = Incumbent, 0 = Other)
+
+--
+
 ### Aggregate-level Data
 
 --
 
-Monthly UK GDP estimates from the UK's ONS
+Monthly UK GDP estimates from the ONS
+
+--
+
+Characterised by growth, but also the global financial crisis
 
 ---
 
@@ -179,7 +269,19 @@ Monthly UK GDP estimates from the UK's ONS
 
 --
 
+I take a two-staged approach:
+
+--
+
+### Stage 1: Estimate Fine-Grained GDP
+
+--
+
 Aggregate data impose a major constraint: data is structured according to the release schedule of the statistical agencies behind them
+
+--
+
+### Stage 2: Estimate Voter Myopia Model
 
 ---
 class: inverse, center, middle
@@ -1666,7 +1768,7 @@ table %>%
 
 ---
 
-## Conclusion: Voter Myopia is Real
+## Voter Myopia is Real
 
 --
 
@@ -1690,7 +1792,7 @@ Instead, they respond to economic change over the past few years, but with dimin
 
 ---
 
-## Conclusion: Implications
+## Implications
 
 --
 
