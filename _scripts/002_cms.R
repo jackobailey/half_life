@@ -80,6 +80,21 @@ cms <-
   select(-date1, -date2)
 
 
+# Now, we'll create a tracking variable that counts up in months for our
+# rolling intercept parameters.
+
+cms <- 
+  cms %>% 
+  mutate(
+    month =
+      date %>% 
+      floor_date("months") %>% 
+      interval(min(., na.rm = T), .) %>% 
+      divide_by(months(1)) %>% 
+      add(1)
+  )
+
+
 # We'll convert the voting intention item from specific parties to "Incumbent"
 # or "Other" based on who was in power at what time. I've kept in those who
 # said "Don't know", etc., as it's probable that some voters who support the
@@ -117,46 +132,17 @@ cms <-
   )
 
 
-# Next, we'll create a factor variable that tracks who the current Prime
-# Minister was at the time of the survey so that we can account for any
-# leader-specific effects that might affect whether respondents support
-# the incumbent or not.
 
-cms <-
-  cms %>% 
-  mutate(
-    leader =
-      case_when(
-        date < "2007-06-27" ~ "Tony Blair",
-        date >= "2007-06-27" & date < "2010-05-11" ~ "Gordon Brown",
-        date >= "2010-05-11" ~ "David Cameron"
-      ) %>% 
-      factor(levels = c("Tony Blair", "Gordon Brown", "David Cameron"))
-  )
-
-
-# We'll also create a new variable "office" that counts how long each
-# Prime Minister has been in power.
+# Next, we'll create a variable that tells us what date the government under
+# which the respondent currently lives first came to power (1 May 1997 for
+# the Labour Party, 11 May 2010 for the Coalition).
 
 cms <- 
   cms %>% 
   mutate(
-    office =
-      case_when(
-        leader == "Tony Blair" ~ interval("1997-05-02", date)/years(1),
-        leader == "Gordon Brown" ~ interval("2007-06-27", date)/years(1),
-        leader == "David Cameron" ~ interval("2010-05-11", date)/years(1)
-      )
-  )
-
-
-# We'll also create a new variable "year" that tracks the time that has
-# passed since the first date of the survey in years.
-
-cms <- 
-  cms %>% 
-  mutate(
-    year = interval(min(as_date(cms$date), na.rm = T), as_date(date))/years(1)
+    term =
+      ifelse(date < "2010-05-11", "1997-05-01", "2010-05-11") %>% 
+      as_date()
   )
 
 
@@ -178,17 +164,17 @@ cms <-
 
 # First, we'll create a random "link_date" for each case in the data by
 # sampling a single date at random between the date that the respondent
-# took the survey and five years before.
+# took the survey and the current government's first day in power.
 
 cms <-
   cms %>% 
   mutate(
     link_date =
-      map_dbl(.x = date,
-              .f = function(x){
-                from <- x %m-% years(5)
-                to <- x
-                rdm <- seq(from, to, by = "day")
+      map2_dbl(
+        .x = date,
+        .y = term,
+              .f = function(x, y){
+                rdm <- seq(y, x, by = "day")
                 smp <- sample(rdm, size = 1)
                 smp
               }
@@ -261,6 +247,39 @@ cms <-
 # This non-linear model allows the slope parameter to show exponential
 # decay in the effect of GDP on incumbent voting in line with the amount of
 # time that has passed between the current and the referent date.
+
+# First, we'll put the data in list format for Stan.
+
+stan_dta <- 
+  list(
+    N = nrow(cms),
+    M = max(cms$month),
+    vote = as_dummy(cms$inc, "Incumbent"),
+    month = cms$month,
+    gdp = cms$gdp,
+    time = cms$time,
+    w8 = cms$w8
+  )
+
+
+# Second, we'll compile the model.
+
+model <- stan_model(file = here("_models", "m001_exponential.stan"))
+
+
+# Third, we'll fit it to the data
+
+m1 <- 
+  sampling(
+    object = model,
+    data = stan_dta,
+    iter = 2e3,
+    refresh = 5,
+    seed = 666,
+    chains = 4,
+    cores = 4
+  )
+
 
 # First, let's fit the model to the data. (Note that this model is complex
 # and will likely take several hours to fit on even a high-end computer).
