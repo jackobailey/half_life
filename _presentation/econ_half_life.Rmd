@@ -1,0 +1,1730 @@
+---
+title: "What's the Half-Life of the Economic Vote? (About a Year and a Half)"
+author: "Jack Bailey"
+date: "27 October 2020"
+output:
+  xaringan::moon_reader:
+    css: "xaringan-jb.css"
+    lib_dir: libs
+    nature:
+      navigation:
+        scroll: false
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, echo = F, include = F, cache = T}
+
+# Load packages
+
+library(xaringanthemer)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(jbmisc) # https://github.com/jackobailey/jbmisc
+library(brms)
+library(here)
+
+
+# Load half-life model
+
+m1 <- readRDS(here("_output", "m1.rds"))
+
+
+# Estimate half-life distribution
+
+half_life_dist <-
+  log(2) %>% 
+  divide_by(
+    posterior_samples(
+      m1,
+      pars = "b_lambda"
+    ) %>% 
+      pluck(1)
+  )
+
+
+# Get posterior samples for easy access
+
+post_samps <- 
+  posterior_samples(m1) %>% 
+  tibble() %>% 
+  select(
+    beta0 = b_beta0_Intercept,
+    lambda = b_lambda_Intercept
+  )
+
+
+# Load second robustness model
+
+m3 <- readRDS(here("_output", "m3.rds"))
+
+
+# Get posterior economic voting effect from model 3
+
+m3_econ <- 
+  posterior_samples(m3, pars = "gdp") %>% 
+  tibble()
+
+
+# Load figure scripts
+
+source(here("_scripts", "003_gdp_plot.R"))
+source(here("_scripts", "004_decay_plot.R"))
+source(here("_scripts", "005_slope_plot.R"))
+source(here("_scripts", "006_real_decay_plot.R"))
+source(here("_scripts", "007_real_slope_plot.R"))
+source(here("_scripts", "008_table.R"))
+
+
+# Load raw GDP data
+
+gdp <- read_csv(here("_data", "gdp.csv"))
+
+
+```
+
+
+class: inverse, center, middle
+
+## "After decades of attention, we are little beyond introspection in understanding the processes by which citizens come to perceive economic movement"
+
+.right[*MacKuen et al. (1992, p. 597)*]
+
+---
+
+## Voter Myopia
+
+--
+
+### Our Understanding is Limited
+
+--
+
+Often rely on ad-hoc assumptions
+
+--
+
+And because different scholars make different assumptions, the time frames that they assume voters to use differ too.
+
+--
+
+### So What?
+
+--
+
+Myopic voters are open to abuse
+
+--
+
+1. Voter myopia lets governments do what they like early in their term, without any meaningful consequences
+
+--
+
+2. Myopic voters might vote not for the best economic *managers*, but instead the best economic *manipulators*
+
+---
+class: inverse, center, middle
+
+# How Retrospective are<br>Retrospective Voters?
+
+---
+
+## Voter-centric Research
+
+### Steirs et al. (2019)
+
+Voters are "attentive to the government's performance in the long run as well as the short" (p. 647)
+
+### Huber et al. (2012) and Healy & Lenz (2014)
+
+---
+
+## Electorate-centric Research
+
+### Hibbs (1987)
+
+### Wlezien (2015)
+
+---
+
+## A Hybrid Approach
+
+Text
+
+---
+
+## Data
+
+--
+
+### Individual-level Data:
+
+--
+
+BES Continuous Monitoring Survey (Whiteley et al., 2014)
+
+--
+
+### Aggregate-level Data
+
+--
+
+Monthly UK GDP estimates from the UK's ONS
+
+---
+
+## Methods
+
+--
+
+Aggregate data impose a major constraint: data is structured according to the release schedule of the statistical agencies behind them
+
+---
+class: inverse, center, middle
+
+# Stage 1: Estimating Daily GDP
+
+---
+
+class: center, middle
+
+```{r gdp-panel-1, fig.height = 3, fig.width = 5, dpi = 500, echo = F, cache = T}
+panel1 + theme_bailey() + theme(axis.title.x = element_blank())
+```
+
+---
+
+class: center, middle
+
+```{r gdp-panel-2, fig.height = 3, fig.width = 5, dpi = 500, echo = F, cache = T}
+panel2 + theme_bailey() + theme(axis.title.x = element_blank())
+```
+
+---
+
+class: center, middle
+
+```{r gdp-panel-3, fig.height = 3, fig.width = 5, dpi = 500, echo = F, cache = T}
+panel3 + theme_bailey() + theme(axis.title.x = element_blank())
+```
+
+---
+class: inverse, center, middle
+
+# Stage 2: Building the Model
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-1, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 0, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha + \beta (C_{0} - C_{t})$
+
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-2, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 0, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  geom_segment(
+    x = 0,
+    xend = 0,
+    y = 0.55,
+    yend = 0.70,
+    lineend = "round",
+    size = 0.5,
+    color = bailey_colours("red"),
+    arrow = arrow(ends = "last", type = "closed", length = unit(1.5, "pt"))) +
+  geom_segment(
+    x = 0,
+    xend = 0,
+    y = 0.45,
+    yend = 0.30,
+    lineend = "round",
+    size = 0.5,
+    color = bailey_colours("red"),
+    arrow = arrow(ends = "last", type = "closed", length = unit(1.5, "pt"))) +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta (C_{0} - C_{t})$
+
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-3, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 0, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in GDP"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  geom_segment(
+    x = 0,
+    xend = 0,
+    y = 0.55,
+    yend = 0.70,
+    lineend = "round",
+    size = 0.5,
+    color = bailey_colours("red"),
+    arrow = arrow(ends = "last", type = "closed", length = unit(1.5, "pt"))) +
+  geom_segment(
+    x = 0,
+    xend = 0,
+    y = 0.45,
+    yend = 0.30,
+    lineend = "round",
+    size = 0.5,
+    color = bailey_colours("red"),
+    arrow = arrow(ends = "last", type = "closed", length = unit(1.5, "pt"))) +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta \Delta GDP_{t}$
+
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-4, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = 1
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 2.5, 5), labels = c("0", "2.5", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta$
+
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-5, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = betaT(time = time, beta0 = 1, lambda = 0.8)
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 2.5, 5), labels = c("0", "2.5", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-6, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+decay = 0.80
+
+labs_h <-
+  tibble(
+    x = 0,
+    xend = log(2)/decay,
+    y = .5,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+labs_v <-
+  tibble(
+    x = log(2)/decay,
+    xend = log(2)/decay,
+    y = 0,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = betaT(time = time, beta0 = 1, lambda = decay)
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 5), labels = c("0", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("white"),
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = -.05,
+      yend = -.08
+    ),
+    colour = bailey_colours("black"),
+    lineend = "round"
+  ) +
+  geom_text(
+    data = labs_v,
+    aes(
+      x = x,
+      y = y-.12,
+      label = paste("t½ =", round(xend, 1))
+    ),
+    colour = bailey_colours("black"),
+    family = "Cabin",
+    size = 2.3
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-7, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+decay = 0.6
+
+labs_h <-
+  tibble(
+    x = 0,
+    xend = log(2)/decay,
+    y = .5,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+labs_v <-
+  tibble(
+    x = log(2)/decay,
+    xend = log(2)/decay,
+    y = 0,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = betaT(time = time, beta0 = 1, lambda = decay)
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 5), labels = c("0", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("white"),
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = -.05,
+      yend = -.08
+    ),
+    colour = bailey_colours("black"),
+    lineend = "round"
+  ) +
+  geom_text(
+    data = labs_v,
+    aes(
+      x = x,
+      y = y-.12,
+      label = paste("t½ =", round(xend, 1))
+    ),
+    colour = bailey_colours("black"),
+    family = "Cabin",
+    size = 2.3
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-8, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+decay = 0.4
+
+labs_h <-
+  tibble(
+    x = 0,
+    xend = log(2)/decay,
+    y = .5,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+labs_v <-
+  tibble(
+    x = log(2)/decay,
+    xend = log(2)/decay,
+    y = 0,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = betaT(time = time, beta0 = 1, lambda = decay)
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 5), labels = c("0", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("white"),
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = -.05,
+      yend = -.08
+    ),
+    colour = bailey_colours("black"),
+    lineend = "round"
+  ) +
+  geom_text(
+    data = labs_v,
+    aes(
+      x = x,
+      y = y-.12,
+      label = paste("t½ =", round(xend, 1))
+    ),
+    colour = bailey_colours("black"),
+    family = "Cabin",
+    size = 2.3
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-9, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+decay = 0.2
+
+labs_h <-
+  tibble(
+    x = 0,
+    xend = log(2)/decay,
+    y = .5,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+labs_v <-
+  tibble(
+    x = log(2)/decay,
+    xend = log(2)/decay,
+    y = 0,
+    yend = .5,
+    label = paste0("λ = ", decay)
+  )
+
+tibble(
+    time = seq(0, 5, by = .1),
+    beta = betaT(time = time, beta0 = 1, lambda = decay)
+) %>% 
+  ggplot(
+    aes(
+      y = beta,
+      x = time
+    )
+  ) +
+  scale_y_continuous(breaks = c(0, .5, 1), labels = c("0B", "½B", "1B")) +
+  scale_x_continuous(breaks = c(0, 5), labels = c("0", "5")) +
+  coord_cartesian(ylim = c(0, 1), clip = "off") +
+  labs(
+    y = "Parameter Value",
+    x = "Economic Time Frame (Years)"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("white"),
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_h,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = y,
+      yend = yend
+    ),
+    colour = bailey_colours("red"),
+    linetype = "dotted",
+    lineend = "round"
+  ) +
+  geom_segment(
+    data = labs_v,
+    aes(
+      x = x,
+      xend = xend,
+      y = -.05,
+      yend = -.08
+    ),
+    colour = bailey_colours("black"),
+    lineend = "round"
+  ) +
+  geom_text(
+    data = labs_v,
+    aes(
+      x = x,
+      y = y-.12,
+      label = paste("t½ =", round(xend, 1))
+    ),
+    colour = bailey_colours("black"),
+    family = "Cabin",
+    size = 2.3
+  ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-10, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 0, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-11, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 0.5, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-12, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 1, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-13, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 1.5, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-14, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 2, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+
+class: middle
+
+.pull-left[
+```{r eq-15, fig.asp = 1, fig.width = 3, dpi = 500, echo = F, cache = T}
+
+betaT <- function(time = 0, beta0 = 1, lambda = 1){
+  beta0*exp(-lambda*time)
+}
+
+tibble(
+    gdp = seq(-5, 5, by = 0.1),
+    vote = inv_logit(0 + betaT(time = 2.5, beta0 = 0.2, lambda = 1)*gdp)
+) %>% 
+  ggplot(
+    aes(
+      y = vote,
+      x = gdp
+    )
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(-5, 5, by = 2.5),
+    labels = c("-5%", "-2.5%", "0%", "+2.5%", "+5%")
+  ) +
+  labs(
+    y = "Prob. Vote Incumbent",
+    x = "Change in Conditions"
+  ) +
+  geom_vline(
+    xintercept = 0,
+    linetype = "dotted",
+    colour = bailey_colours("grey6")
+    ) +
+  geom_line(lineend = "round") +
+  theme_bailey() +
+  theme(
+    axis.ticks.y = element_line(lineend = "round")
+  )
+
+```
+]
+
+.pull-right[
+
+$\mathrm{ }$
+
+$Vote_{i} \sim \mathrm{Bernoulli}(\pi_{i})$
+
+$logit(\pi_{i}) = \alpha_{wave[i]} + \beta_{t} \Delta GDP_{t}$
+
+$\beta_{t} = \beta_{0}e^{-\lambda t}$
+
+$t_{1/2} = \frac{log(2)}{\lambda}$
+]
+
+---
+class: inverse, center, middle
+
+# Results
+
+---
+
+class: center, middle
+
+```{r table, echo = F, cache = T}
+
+
+# Get each draw from the posterior distribution
+
+draws <- posterior_samples(m1)
+
+
+# Get regression coefficients
+
+draws <-
+  draws %>% 
+  select(
+    Intercept = b_pars_Intercept,
+    `GDP (t = 0)` = b_beta0_Intercept,
+    `Decay Constant` = b_lambda_Intercept,
+    `Years Passed` = b_pars_year,
+    `Time in Office` = b_pars_office,
+    `Gordon Brown (vs. Tony Blair)` = b_pars_leaderGordonBrown,
+    `David Cameron (vs. Tony Blair)` = b_pars_leaderDavidCameron,
+    `Gordon Brown x Time` = `b_pars_office:leaderGordonBrown`,
+    `David Cameron x Time` = `b_pars_office:leaderDavidCameron`
+  )
+
+
+# Pivot table to long-format then compute summary statistics
+
+table <- 
+  draws %>% 
+  pivot_longer(cols = everything()) %>% 
+  mutate(
+    name =
+      name %>% 
+      factor(
+        levels =
+          c(
+            "Intercept",
+            "GDP (t = 0)",
+            "Decay Constant",
+            "Years Passed",
+            "Time in Office",
+            "Gordon Brown (vs. Tony Blair)",
+            "David Cameron (vs. Tony Blair)",
+            "Gordon Brown x Time",
+            "David Cameron x Time"
+          )
+      )
+  ) %>% 
+  group_by(name) %>% 
+  summarise(
+    Median = format(round(median(value), 2), nsmall = 2),
+    Error = format(round(sd(value), 2), nsmall = 2),
+    `2.5%` = format(round(quantile(value, probs = 0.025), 2), nsmall = 2),
+    `97.5%` = format(round(quantile(value, probs = 0.975), 2), nsmall = 2),
+    .groups = "drop"
+  ) %>% 
+  rename(
+    " " = name
+  )
+
+
+# Create latex table
+
+table %>% 
+  kable(
+    format = "html",
+    align = "lcccc"
+    ) %>% 
+  kable_styling(
+    html_font = "Cabin"
+  )
+
+```
+
+---
+
+class: center, middle
+
+```{r real-decay-plot, fig.height = 3.5, fig.width = 6, dpi = 500, echo = F, message = F, cache = T}
+real_decay_plot +
+  scale_y_continuous(
+    breaks = c(0, median(pars$beta0)/2, median(pars$beta0), median(pars$beta0)*2),
+    labels = c(0, round(median(pars$beta0) * c(.5, 1, 2), 2)),
+    sec.axis = 
+      dup_axis(
+        trans = ~.,
+        labels = c("0B", "½B", "1B", "2B")
+      )
+  )
+```
+
+---
+
+class: center, middle
+
+```{r real-slope-plot, fig.height = 2.5, fig.width = 6, dpi = 500, echo = F, cache = T}
+real_slope_plot
+```
+
+---
+
+class: center, middle
+
+```{r table-std, echo = F, cache = T}
+
+
+# Load model 2
+
+m2 <- readRDS(here("_output", "m2.rds"))
+
+
+# Get each draw from the posterior distribution
+
+draws <- posterior_samples(m2)
+
+
+# Get regression coefficients
+
+draws <-
+  draws %>% 
+  select(
+    Intercept = b_Intercept,
+    `Year-on-Year GDP Change` = b_gdp,
+    `Years Passed` = b_year,
+    `Time in Office` = b_office,
+    `Gordon Brown (vs. Tony Blair)` = b_leaderGordonBrown,
+    `David Cameron (vs. Tony Blair)` = b_leaderDavidCameron,
+    `Gordon Brown x Time` = `b_office:leaderGordonBrown`,
+    `David Cameron x Time` = `b_office:leaderDavidCameron`
+  )
+
+
+# Pivot table to long-format then compute summary statistics
+
+table <- 
+  draws %>% 
+  pivot_longer(cols = everything()) %>% 
+  mutate(
+    name =
+      name %>% 
+      factor(
+        levels =
+          c(
+            "Intercept",
+            "Year-on-Year GDP Change",
+            "Years Passed",
+            "Time in Office",
+            "Gordon Brown (vs. Tony Blair)",
+            "David Cameron (vs. Tony Blair)",
+            "Gordon Brown x Time",
+            "David Cameron x Time"
+          )
+      )
+  ) %>% 
+  group_by(name) %>% 
+  summarise(
+    Median = format(round(median(value), 2), nsmall = 2),
+    Error = format(round(sd(value), 2), nsmall = 2),
+    `2.5%` = format(round(quantile(value, probs = 0.025), 2), nsmall = 2),
+    `97.5%` = format(round(quantile(value, probs = 0.975), 2), nsmall = 2),
+    .groups = "drop"
+  ) %>% 
+  rename(
+    " " = name
+  )
+
+
+# Create latex table
+
+table %>% 
+  kable(
+    format = "html",
+    align = "lcccc"
+    ) %>% 
+  kable_styling(
+    html_font = "Cabin"
+  )
+
+```
+
+---
+
+class: center, middle
+
+```{r table-hl, echo = F, cache = T}
+
+
+# Load model 2
+
+m3 <- readRDS(here("_output", "m3.rds"))
+
+
+# Get each draw from the posterior distribution
+
+draws <- posterior_samples(m3)
+
+
+# Get regression coefficients
+
+draws <-
+  draws %>% 
+  select(
+    Intercept = b_Intercept,
+    `GDP Change (t = 1.58)` = b_gdp,
+    `Years Passed` = b_year,
+    `Time in Office` = b_office,
+    `Gordon Brown (vs. Tony Blair)` = b_leaderGordonBrown,
+    `David Cameron (vs. Tony Blair)` = b_leaderDavidCameron,
+    `Gordon Brown x Time` = `b_office:leaderGordonBrown`,
+    `David Cameron x Time` = `b_office:leaderDavidCameron`
+  )
+
+
+# Pivot table to long-format then compute summary statistics
+
+table <- 
+  draws %>% 
+  pivot_longer(cols = everything()) %>% 
+  mutate(
+    name =
+      name %>% 
+      factor(
+        levels =
+          c(
+            "Intercept",
+            "GDP Change (t = 1.58)",
+            "Years Passed",
+            "Time in Office",
+            "Gordon Brown (vs. Tony Blair)",
+            "David Cameron (vs. Tony Blair)",
+            "Gordon Brown x Time",
+            "David Cameron x Time"
+          )
+      )
+  ) %>% 
+  group_by(name) %>% 
+  summarise(
+    Median = format(round(median(value), 2), nsmall = 2),
+    Error = format(round(sd(value), 2), nsmall = 2),
+    `2.5%` = format(round(quantile(value, probs = 0.025), 2), nsmall = 2),
+    `97.5%` = format(round(quantile(value, probs = 0.975), 2), nsmall = 2),
+    .groups = "drop"
+  ) %>% 
+  rename(
+    " " = name
+  )
+
+
+# Create latex table
+
+table %>% 
+  kable(
+    format = "html",
+    align = "lcccc"
+    ) %>% 
+  kable_styling(
+    html_font = "Cabin"
+  )
+
+```
+
+---
+
+## Conclusion: Voter Myopia is Real
+
+--
+
+Voters are myopic and respond most strongly to economic change in the recent past
+
+--
+
+Still, they are not quite as short-sighted as we thought
+
+--
+
+They don't consider only the election year (Healy and Lenz, 2014) or even just the past few months (Achen & Bartels, 2016)
+
+--
+
+But neither do state of the economy several years ago have some "abiding" effect on how they vote (Stiers et al., 2019)
+
+--
+
+Instead, they respond to economic change over the past few years, but with diminishing effect
+
+---
+
+## Conclusion: Implications
+
+--
+
+Might be reassuring: Governments must contend with the consequences of more of their actions
+
+--
+
+Yet the two issues I raised at the start remain a problem:
+
+--
+
+1. "Myopic policies for myopic voters" are still a concern
+
+--
+
+2. Voters are myopic enough that they might favour "manipulators" over "managers"
+
+--
+
+Still possible that economic change influences voters through other means: change in issue ownership or perceptions of competence (Fieldhouse et al., 2020)
+
+--
+
+Lots of potential for future research: grievance asymmetry, comparative perspective, model the decay rate
+
+---
+
+class: center, middle
+
+# Thank You
+
+[**jack-bailey.co.uk**](https://www.jack-bailey.co.uk)
+
+[**jack.bailey@manchester.ac.uk**](mailto:jack.bailey@manchester.ac.uk)
+
+[**@PoliSciJack**](https://www.twitter.com/PoliSciJack)
+
