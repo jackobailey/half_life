@@ -199,7 +199,7 @@ Argues for a logistic, not exponential decay function
 
 --
 
-Both approaches have some problems
+Both approaches have problems
 
 --
 
