@@ -33,7 +33,7 @@ m1 <- readRDS(here("_output", "m1.rds"))
 
 
 
-# 2.  Create table --------------------------------------------------------
+# 2. Create table --------------------------------------------------------
 
 # Get each draw from the posterior distribution
 

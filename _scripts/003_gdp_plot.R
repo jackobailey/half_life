@@ -130,34 +130,6 @@ panel3 <-
     title = "Random GDP Change"
   ) +
   annotate(
-    "point",
-    x = conds[414, "time"],
-    y = conds[414, "estimate__"],
-    colour = bailey_colours("black"),
-    size = 1.5
-  ) +
-  annotate(
-    "point",
-    x = conds[576, "time"],
-    y = conds[576, "estimate__"],
-    colour = bailey_colours("black"),
-    size = 1.5
-  ) +
-  annotate(
-    "point",
-    x = conds[414, "time"],
-    y = conds[414, "estimate__"],
-    colour = bailey_colours("red"),
-    size = 0.5
-  ) +
-  annotate(
-    "point",
-    x = conds[576, "time"],
-    y = conds[576, "estimate__"],
-    colour = bailey_colours("red"),
-    size = 0.5
-  ) +
-  annotate(
     "segment",
     x = conds[414, "time"],
     xend = conds[576, "time"],
@@ -178,6 +150,34 @@ panel3 <-
     lineend = "round",
     size = 0.4,
     linetype = "dotted"
+  ) +
+  annotate(
+    "point",
+    x = conds[414, "time"],
+    y = conds[414, "estimate__"],
+    colour = bailey_colours("black"),
+    size = 1.5
+  ) +
+  annotate(
+    "point",
+    x = conds[576, "time"],
+    y = conds[576, "estimate__"],
+    colour = bailey_colours("black"),
+    size = 1.5
+  ) +
+  annotate(
+    "point",
+    x = conds[414, "time"],
+    y = conds[414, "estimate__"],
+    colour = bailey_colours("red"),
+    size = 0.5
+  ) +
+  annotate(
+    "point",
+    x = conds[576, "time"],
+    y = conds[576, "estimate__"],
+    colour = bailey_colours("red"),
+    size = 0.5
   ) +
   geom_segment(
     x = conds[414, "time"],
