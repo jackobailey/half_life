@@ -1,7 +1,7 @@
 ---
 title: |
   | What's the Half-Life of the Economic Vote?
-  | (About a Year and a Half)\thanks{This article benefitted from much useful feedback. Thank you to Matthew Barnfield, Ed Fieldhouse, and Jon Mellon for their time and their wisdom. Thank you also to Richard McElreath who was kind enough to share the code necessary to make the equation labels that I use here.}
+  | (About a Year and a Half)\thanks{This article benefitted from much useful feedback. Thank you to Matthew Barnfield, Ed Fieldhouse, Jon Mellon, and members of the European University Institute's Political Behaviour Colloquium and the University of Manchester's Democracy and Elections cluster for their time and their wisdom. Thank you also to Richard McElreath who was kind enough to share the code necessary to make the nice equation labels that I use here.}
 author: |
   | Jack Bailey\thanks{Research Associate, Department of Politics, The University of Manchester, UK. If you have any comments or questions, feel free to contact me either by email (\href{mailto:jack.bailey@manchester.ac.uk}{jack.bailey@manchester.ac.uk}) or on Twitter (\href{https://www.twitter.com/PoliSciJack}{@PoliSciJack}).}
 date: |
