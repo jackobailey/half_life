@@ -23,12 +23,18 @@ class: center, middle, inverse, title-slide
 
 
 
-
 class: inverse, center, middle
 
 ## "After decades of attention, we are little beyond introspection in understanding the processes by which citizens come to perceive economic movement"
 
 .right[*MacKuen et al. (1992, p. 597)*]
+
+???
+
+- MacKuen, Erikson, Stimson
+- 3 decades later, not much has changed
+- Just like the early-1990s, still believe voters are retrospective and myopic
+- Just like the early-1990s, still don't know how myopic they really are
 
 ---
 
@@ -46,26 +52,50 @@ Often rely on ad-hoc assumptions
 
 And because different scholars make different assumptions, the time frames that they assume voters to use differ too.
 
+???
+
+- Assumptions: Year before election (Bloom &amp; Price, 1075; Kramer, 1971), year-on-year (Palmer &amp; Whitten, 2011; Clarke et al, 1986; Goodhart &amp; Bhansali, 1970), quarter-on-quarter (Lanoue 1987), or even month-on-month (Lebo and Cassino, 2007).
+
 --
 
 ### So What?
 
 --
 
-Myopic voters are open to abuse
+Consequences for accountability: Myopic voters open to abuse
 
 --
 
 1. Voter myopia lets governments do what they like early in their term, without any meaningful consequences
 
+???
+
+1. Governments can pursue narrow ideological goals in the short-term and not the goals of the public, without having to worry that this might affect them in the long-run
+
 --
 
 2. Myopic voters might vote not for the best economic *managers*, but instead the best economic *manipulators*
+
+???
+
+2. When they control the levers of the state, parties can and do use their power to shape voters' preferences in their own favour (Dunleavy and Ward, 1981).
+
+- Voter myopia lets them do so strategically
+
+- Pull out the stops to get the economy booming by election time. If it has negative consequences (e.g. inflation), voters probably won't notice later on anyway.
 
 ---
 class: inverse, center, middle
 
 # How Retrospective are&lt;br&gt;Retrospective Voters?
+
+???
+
+- Seems reasonable to assume that voters forget all sorts of things that we consider important: people are fallable
+
+- Presumably even truer for the economy: figures to remember, the figures change, relations are complex, and almost no one is educated in economics
+
+- So this might lead us to be sceptical of the idea that voters follow the every ebb and flow of economic change
 
 ---
 
@@ -75,17 +105,29 @@ class: inverse, center, middle
 
 ### Steirs et al. (2019)
 
+???
+
+Useful starting point: they do think voters are attentive
+
 --
 
 Voters are "attentive to the government's performance in the long run as well as the short" (p. 647)
 
 --
 
-Model incumbent support as function of past government satisfaction and economic satisfaction
+Model incumbent voting as function of past government satisfaction and economic satisfaction
+
+???
+
+- Use panel data from the Netherlands and the US
 
 --
 
 But their models focus on *levels* and not *change in levels* so tell us little about retrospective vote
+
+???
+
+- Fiorina (1981): "citizens need only calculate the *changes* in their own welfare".
 
 --
 
@@ -187,7 +229,7 @@ Monthly cross-sections, April 2004 to February 2014
 
 --
 
-DV: Vote choice (1 = Incumbent, 0 = Other)
+Vote choice (1 = Incumbent, 0 = Other)
 
 --
 
@@ -215,11 +257,23 @@ I take a two-staged approach:
 
 --
 
-Aggregate data impose a major constraint: data is structured according to the release schedule of the statistical agencies behind them
+Aggregate data are structured according to the release schedule of the statistical agencies behind them
+
+--
+
+Fit a spline to these data to estimate daily GDP levels
 
 --
 
 ### Stage 2: Estimate Voter Myopia Model
+
+--
+
+Model needs to estimate the economic vote *and* voter myopia
+
+--
+
+Adapt a multilevel model to allow the economic vote to decay in line with the time frames that voters use
 
 ---
 class: inverse, center, middle
